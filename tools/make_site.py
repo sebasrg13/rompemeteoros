@@ -12,7 +12,16 @@ game_v = int(sys.argv[1]); base = sys.argv[2]
 apk = sys.argv[3] if len(sys.argv) > 3 else None
 site = os.path.join(ROOT, 'site')
 os.makedirs(os.path.join(site, 'game'), exist_ok=True)
-shutil.copy(os.path.join(ROOT, 'dist', 'index.html'), os.path.join(site, 'game', 'index.html'))
+# el juego + lo necesario para instalarlo como app en iPhone (manifest, íconos, service worker)
+game = open(os.path.join(ROOT, 'dist', 'index.html'), encoding='utf-8').read()
+PWA = ('<link rel="manifest" href="../manifest.webmanifest">\n'
+       '<link rel="apple-touch-icon" href="../apple-touch-icon.png">\n'
+       '<meta name="apple-mobile-web-app-title" content="Rompemeteoros">\n'
+       '<script>if(!window.RompeApp&&"serviceWorker" in navigator)addEventListener("load",function(){navigator.serviceWorker.register("../sw.js",{scope:"../"}).catch(function(){})});</script>\n')
+game = game.replace('</head>', PWA + '</head>', 1)
+open(os.path.join(site, 'game', 'index.html'), 'w', encoding='utf-8').write(game)
+for f in os.listdir(os.path.join(ROOT, 'web')):
+    if f != 'index.html': shutil.copy(os.path.join(ROOT, 'web', f), os.path.join(site, f))
 vp = {}
 for line in open(os.path.join(ROOT, 'android', 'app', 'version.properties'), encoding='utf-8'):
     m = re.match(r'\s*(\w+)\s*=\s*(.+)', line)
