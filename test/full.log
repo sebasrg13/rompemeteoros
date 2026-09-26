@@ -1,0 +1,65 @@
+PASS pantalla de carga con botón JUGAR
+PASS menú visible
+PASS JUGAR inicia nivel 1
+PASS jugador visible
+PASS meteoritos aparecen  1
+PASS escena 3D renderizada (no negra)  [[49, 53, 85, 255], [75, 166, 190, 255]]
+PASS draw calls 3D  {'calls': 24, 'tris': 7404}
+PASS dedo mueve a la izquierda  (0, -3.609804774328924)
+PASS dedo mueve a la derecha  (-3.609804774328924, 3.615185204657455)
+PASS pista de tutorial se oculta al arrastrar
+PASS mouse arrastra (PC)
+FAIL disparo automático  4
+PASS colisiones y destrucción de meteoritos  7
+PASS monedas recolectadas  2
+PASS puntuación sube  700
+PASS MULTI SHOT x7
+FAIL x7 genera proyectiles separados  [-0.7, 1.22]
+PASS todos los boosts activables  ['multi', 'rapid', 'big', 'damage', 'shield', 'magnet', 'coin']
+PASS HUD muestra boosts activos
+PASS MINI SQUAD: naves orbitando en 3D  {'active': True, 'vis': 3, 'z': [1.74, 1.48, 1.15], 'mb': 6}
+PASS balas rebotadoras (rebote registrado)  (3, 6)
+PASS vibración no rompe (API opcional)
+PASS pausa
+PASS juego congelado en pausa
+PASS continuar
+PASS auto-pausa al perder visibilidad
+PASS nivel termina (NIVEL COMPLETADO)  LEVEL_COMPLETE
+PASS botón SIGUIENTE NIVEL disponible
+PASS SIGUIENTE NIVEL -> nivel 2
+PASS nivel 2 completo  LEVEL_COMPLETE
+PASS recompensa opcional guardada
+PASS usar boost guardado
+PASS nivel 3 completo  ('LEVEL_COMPLETE', 0, 0, 0)
+PASS nivel 4 completo  ('LEVEL_COMPLETE', 0, 0, 0)
+PASS nivel 5 = BOSS INTRO
+PASS BOSS FIGHT
+PASS boss recibe daño  (458, 423)
+PASS barra de vida del boss
+PASS fase final del boss
+PASS boss muere -> victoria  ¡BOSS DERROTADO!
+PASS continúa campaña tras boss (nivel 6)
+PASS boss nivel 10 (DESTROYER)  ('BOSS_FIGHT', 'LEVEL_COMPLETE')
+PASS boss nivel 15 (ALIEN MOTHER)  ('BOSS_FIGHT', 'LEVEL_COMPLETE')
+PASS boss nivel 20 (BLACK HOLE)  ('BOSS_FIGHT', 'LEVEL_COMPLETE')
+PASS boss nivel 25 (METEOR KING)  ('BOSS_FIGHT', 'LEVEL_COMPLETE')
+PASS nivel 8 en curso sin errores  {'m': 'n1,n2,n3,n1', 'a': ''}
+PASS nivel 9 en curso sin errores  {'m': 'a2,a2,a3', 'a': ''}
+PASS nivel 17 en curso sin errores  {'m': 'a3,n2,e2,a2,n1', 'a': ''}
+PASS nivel 19 en curso sin errores  {'m': 'e2,n3,c3,n2,e2', 'a': ''}
+PASS GAME OVER
+PASS REINTENTAR
+PASS SALIR AL MENÚ
+PASS tienda abre
+PASS compra y equipa  {'cannon': 'titan', 'bullet': 'plasma', 'skin': 'crimson'}
+PASS pantalla #s-settings
+PASS pantalla #s-info
+PASS pantalla #s-records
+PASS guardado en localStorage  26
+PASS sin errores JS registrados
+PASS sin errores de página
+FPS aprox headless: 30.9 tier 0
+
+58/60 OK
+  FAIL disparo automático 4
+  FAIL x7 genera proyectiles separados [-0.7, 1.22]

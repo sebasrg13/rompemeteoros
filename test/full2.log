@@ -1,0 +1,72 @@
+PASS pantalla de carga con botón JUGAR
+PASS menú visible
+PASS JUGAR inicia nivel 1
+PASS jugador visible
+PASS meteoritos aparecen  1
+PASS escena 3D renderizada (no negra)  [[91, 108, 162, 255], [70, 205, 212, 255]]
+PASS draw calls 3D  {'calls': 24, 'tris': 7404}
+PASS dedo mueve a la izquierda  (0, -3.6168891213119547)
+PASS dedo mueve a la derecha  (-3.6168891213119547, 3.616828890708695)
+PASS pista de tutorial se oculta al arrastrar
+PASS mouse arrastra (PC)
+PASS disparo automático  7
+PASS colisiones y destrucción de meteoritos  7
+PASS monedas recolectadas  3
+PASS puntuación sube  1000
+PASS MULTI SHOT x7
+FAIL x7 genera proyectiles separados
+PASS todos los boosts activables  ['multi', 'rapid', 'big', 'damage', 'shield', 'magnet', 'coin']
+PASS HUD muestra boosts activos
+PASS MINI SQUAD: naves orbitando en 3D  {'active': True, 'vis': 3, 'z': [1.18, 0.8, 1.54], 'mb': 9}
+PASS balas rebotadoras (rebote registrado)  (5, 9)
+PASS vibración no rompe (API opcional)
+PASS pausa
+PASS juego congelado en pausa
+PASS continuar
+PASS auto-pausa al perder visibilidad
+PASS nivel termina (NIVEL COMPLETADO)  LEVEL_COMPLETE
+PASS botón SIGUIENTE NIVEL disponible
+PASS SIGUIENTE NIVEL -> nivel 2
+PASS nivel 2 completo  LEVEL_COMPLETE
+PASS recompensa opcional guardada
+PASS usar boost guardado
+FAIL nivel 3 completo  ('PLAYING', 1, 2, 0)
+PASS nivel 4 completo  ('LEVEL_COMPLETE', 0, 0, 0)
+PASS nivel 5 = BOSS INTRO
+PASS BOSS FIGHT
+PASS boss recibe daño  (459, 421)
+PASS barra de vida del boss
+PASS fase final del boss
+PASS boss muere -> victoria  ¡BOSS DERROTADO!
+PASS continúa campaña tras boss (nivel 6)
+PASS boss nivel 10 (DESTROYER)  ('BOSS_FIGHT', 'LEVEL_COMPLETE')
+PASS boss nivel 15 (ALIEN MOTHER)  ('BOSS_FIGHT', 'LEVEL_COMPLETE')
+PASS boss nivel 20 (BLACK HOLE)  ('BOSS_FIGHT', 'LEVEL_COMPLETE')
+FAIL boss nivel 25 (METEOR KING)  ('BOSS_FIGHT', 'BOSS_FIGHT')
+FAIL nivel 8 en curso sin errores  {'m': 'c3,n2', 'a': ''}
+FAIL nivel 9 en curso sin errores  {'m': 'e3,c2,e2', 'a': ''}
+FAIL nivel 17 en curso sin errores  {'m': 'e2,n2,c2,n2', 'a': ''}
+FAIL nivel 19 en curso sin errores  {'m': 'e2,c3,e2,a2,c2', 'a': ''}
+FAIL GAME OVER
+PASS REINTENTAR
+PASS SALIR AL MENÚ
+PASS tienda abre
+PASS compra y equipa  {'cannon': 'titan', 'bullet': 'plasma', 'skin': 'crimson'}
+PASS pantalla #s-settings
+PASS pantalla #s-info
+PASS pantalla #s-records
+PASS guardado en localStorage  21
+FAIL sin errores JS registrados  ['state: Error: Transición no prevista BOSS_FIGHT -> PLAYING\n    at Game.setState (file:///home/claude/bb3d/dist/index.html:5658:90)\n    at Game.startLevel (file:///home/claude/bb3d/dist/index.html:5972:14)\n  ']
+PASS sin errores de página
+FPS aprox headless: 30.0 tier 0
+
+51/60 OK
+  FAIL x7 genera proyectiles separados []
+  FAIL nivel 3 completo ('PLAYING', 1, 2, 0)
+  FAIL boss nivel 25 (METEOR KING) ('BOSS_FIGHT', 'BOSS_FIGHT')
+  FAIL nivel 8 en curso sin errores {'m': 'c3,n2', 'a': ''}
+  FAIL nivel 9 en curso sin errores {'m': 'e3,c2,e2', 'a': ''}
+  FAIL nivel 17 en curso sin errores {'m': 'e2,n2,c2,n2', 'a': ''}
+  FAIL nivel 19 en curso sin errores {'m': 'e2,c3,e2,a2,c2', 'a': ''}
+  FAIL GAME OVER 
+  FAIL sin errores JS registrados ['state: Error: Transición no prevista BOSS_FIGHT -> PLAYING\n    at Game.setState (file:///home/claude/bb3d/dist/index.html:5658:90)\n    at Game.startLevel (file:///home/claude/bb3d/dist/index.html:5972:14)\n  ']

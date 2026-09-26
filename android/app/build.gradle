@@ -1,0 +1,68 @@
+plugins {
+    id 'com.android.application'
+}
+
+def vp = new Properties()
+file('version.properties').withInputStream { vp.load(it) }
+def updateBase = (project.findProperty('updateBase') ?: 'https://TU-USUARIO.github.io/rompemeteoros/').toString()
+def gameVersion = (project.findProperty('gameVersion') ?: '1').toString()
+
+def ksFile = file('rompemeteoros.keystore')
+def ksProps = new Properties()
+def kpf = rootProject.file('keystore.properties')
+if (kpf.exists()) kpf.withInputStream { ksProps.load(it) }
+def ksPass = System.getenv('KEYSTORE_PASSWORD') ?: ksProps.getProperty('storePassword')
+def keyPass = System.getenv('KEY_PASSWORD') ?: ksProps.getProperty('keyPassword') ?: ksPass
+
+android {
+    namespace 'com.rompemeteoros.app'
+    compileSdk 34
+
+    defaultConfig {
+        applicationId 'com.rompemeteoros.app'
+        minSdk 26
+        targetSdk 34
+        versionCode vp.getProperty('versionCode').toInteger()
+        versionName vp.getProperty('versionName')
+        buildConfigField 'String', 'UPDATE_BASE', "\"${updateBase}\""
+        buildConfigField 'int', 'BUNDLED_GAME_VERSION', gameVersion
+    }
+
+    buildFeatures { buildConfig true }
+
+    // Firma fija: TODAS las versiones del APK tienen que firmarse con la MISMA llave,
+    // si no Android no deja instalar la actualización encima de la anterior.
+    // La llave (rompemeteoros.keystore) NO se sube a GitHub: el workflow la recibe por los "secrets".
+    signingConfigs {
+        release {
+            if (ksFile.exists() && ksPass) {
+                storeFile ksFile
+                storePassword ksPass
+                keyAlias 'rompemeteoros'
+                keyPassword keyPass
+            }
+        }
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            signingConfig = (ksFile.exists() && ksPass) ? signingConfigs.release : signingConfigs.debug
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+}
+
+// Copia el juego compilado (dist/index.html) dentro del APK, con su número de versión.
+tasks.register('copyGame', Copy) {
+    from('../../dist/index.html')
+    into('src/main/assets/game')
+    doLast {
+        file('src/main/assets/game/version.txt').text = gameVersion
+    }
+}
+preBuild.dependsOn copyGame

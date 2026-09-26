@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#070a1f">
+<title>Rompemeteoros · Cobrá o arriesgá</title>
+<style>
+  :root{--bg:#070a1f;--ink:#eef2ff;--muted:#9aa6d6;--gold:#ffc83d;--cyan:#3be8ff}
+  *{box-sizing:border-box}
+  body{margin:0;min-height:100vh;background:radial-gradient(90% 60% at 50% 20%,#2a1e6e,var(--bg) 70%);color:var(--ink);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;display:flex;justify-content:center;padding:32px 16px}
+  main{width:100%;max-width:460px;display:flex;flex-direction:column;gap:18px;text-align:center}
+  h1{margin:8px 0 0;font-size:clamp(34px,10vw,52px);letter-spacing:.02em;font-style:italic;background:linear-gradient(180deg,#fff1a8,#ffb12b 55%,#ff6a2b);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 3px 0 #6a1c00)}
+  .sub{display:inline-block;align-self:center;padding:6px 16px;background:var(--cyan);color:#07102a;font-weight:800;letter-spacing:.2em;transform:skewX(-10deg);font-size:14px}
+  .btn{display:block;padding:18px;border-radius:12px;font-weight:800;font-size:20px;letter-spacing:.06em;text-decoration:none;color:#2a0e02;background:linear-gradient(180deg,#ffe07a,#ffb12b 45%,#ff6a2b);box-shadow:0 6px 0 #8a2d00,0 0 30px rgba(255,150,40,.35)}
+  .btn small{display:block;font-size:12px;font-weight:700;letter-spacing:.1em;opacity:.75;margin-top:4px}
+  .ghost{background:rgba(16,23,66,.85);color:var(--ink);box-shadow:none;border:1px solid rgba(100,130,240,.45);font-size:16px}
+  .card{background:rgba(16,23,66,.85);border:1px solid rgba(100,130,240,.35);border-radius:12px;padding:16px;text-align:left;font-size:15px;line-height:1.5;color:var(--muted)}
+  .card h2{margin:0 0 8px;font-size:15px;letter-spacing:.14em;color:var(--cyan)}
+  .card b{color:var(--ink)}
+  ol{margin:0;padding-left:20px}
+  .ver{font-size:13px;color:var(--muted)}
+</style>
+</head>
+<body>
+<main>
+  <h1>ROMPEMETEOROS</h1>
+  <span class="sub">COBRÁ O ARRIESGÁ</span>
+  <a class="btn" href="rompemeteoros.apk" download>DESCARGAR PARA ANDROID<small>App {{APP}} · Juego v{{GAME}}</small></a>
+  <a class="btn ghost" href="game/index.html">JUGAR EN EL NAVEGADOR</a>
+  <div class="card">
+    <h2>NOVEDADES</h2>
+    <div>{{NOTES}}</div>
+  </div>
+  <div class="card">
+    <h2>CÓMO INSTALAR</h2>
+    <ol>
+      <li>Tocá <b>DESCARGAR PARA ANDROID</b>.</li>
+      <li>Abrí el archivo <b>rompemeteoros.apk</b> desde las notificaciones o Descargas.</li>
+      <li>Si Android lo pide, permití <b>"Instalar apps desconocidas"</b> para tu navegador.</li>
+      <li>Tocá <b>INSTALAR</b> y listo.</li>
+    </ol>
+  </div>
+  <div class="card">
+    <h2>ACTUALIZACIONES</h2>
+    Las mejoras del juego llegan solas: al abrir la app te avisa <b>"¡Actualización lista!"</b> y se aplica al instante, sin reinstalar. También podés buscarlas en <b>Ajustes → Buscar actualizaciones</b>.
+  </div>
+  <p class="ver">Publicado {{DATE}}</p>
+</main>
+</body>
+</html>

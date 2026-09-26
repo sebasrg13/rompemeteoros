@@ -1,0 +1,87 @@
+# Cada vez que subís cambios a GitHub:
+#  1) compila el juego (build.py)
+#  2) arma el APK de Android firmado con TU llave
+#  3) publica en GitHub Pages: página de descarga + juego + version.json + APK
+# Las apps instaladas ven el version.json nuevo y se actualizan solas.
+name: Publicar Rompemeteoros
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Compilar el juego
+        run: python3 build.py
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - uses: android-actions/setup-android@v3
+
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.9'
+
+      - name: Calcular dirección de actualizaciones
+        id: url
+        run: |
+          OWNER="${GITHUB_REPOSITORY_OWNER,,}"
+          REPO="${GITHUB_REPOSITORY#*/}"
+          if [ "$REPO" = "$OWNER.github.io" ]; then BASE="https://$OWNER.github.io/"; else BASE="https://$OWNER.github.io/$REPO/"; fi
+          echo "base=$BASE" >> "$GITHUB_OUTPUT"
+          echo "Actualizaciones en: $BASE"
+
+      - name: Preparar llave de firma
+        env:
+          KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
+        run: |
+          if [ -z "$KEYSTORE_BASE64" ]; then
+            echo "::error::Falta el secret KEYSTORE_BASE64 (ver GUIA-ANDROID.md, paso 3)"; exit 1
+          fi
+          echo "$KEYSTORE_BASE64" | base64 -d > android/app/rompemeteoros.keystore
+
+      - name: Compilar APK
+        env:
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEY_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+        run: gradle -p android assembleRelease -PupdateBase=${{ steps.url.outputs.base }} -PgameVersion=${{ github.run_number }}
+
+      - name: Armar sitio de descarga y actualizaciones
+        run: python3 tools/make_site.py ${{ github.run_number }} ${{ steps.url.outputs.base }} android/app/build/outputs/apk/release/app-release.apk
+
+      - uses: actions/configure-pages@v5
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

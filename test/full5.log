@@ -1,0 +1,67 @@
+PASS pantalla de carga con botón JUGAR
+PASS menú visible
+PASS JUGAR inicia nivel 1
+PASS jugador visible
+PASS meteoritos aparecen  1
+FAIL escena 3D renderizada (no negra)
+PASS draw calls 3D  {'calls': 24, 'tris': 7404}
+PASS dedo mueve a la izquierda  (0, -3.6101634166815946)
+PASS dedo mueve a la derecha  (-3.6101634166815946, 3.5982314168506195)
+PASS pista de tutorial se oculta al arrastrar
+PASS mouse arrastra (PC)
+FAIL disparo automático  4
+PASS colisiones y destrucción de meteoritos  2
+FAIL monedas recolectadas
+PASS puntuación sube  200
+PASS MULTI SHOT x7
+PASS x7 genera proyectiles separados  [-4.54, -3.67, -2.79, -1.9, -1.01, -0.13, 0.73]
+PASS todos los boosts activables  ['multi', 'rapid', 'big', 'damage', 'shield', 'magnet', 'coin']
+PASS HUD muestra boosts activos
+PASS MINI SQUAD: naves orbitando en 3D  {'active': True, 'vis': 3, 'z': [1.62, 1.34, 0.58], 'mb': 3}
+PASS balas rebotadoras (rebote registrado)  (0, 0)
+PASS vibración no rompe (API opcional)
+PASS pausa
+PASS juego congelado en pausa
+PASS continuar
+PASS auto-pausa al perder visibilidad
+PASS nivel termina (NIVEL COMPLETADO)  LEVEL_COMPLETE
+PASS botón SIGUIENTE NIVEL disponible
+PASS SIGUIENTE NIVEL -> nivel 2
+PASS nivel 2 completo  LEVEL_COMPLETE
+PASS recompensa opcional guardada
+PASS usar boost guardado
+PASS nivel 3 completo  ('LEVEL_COMPLETE', 0, 0, 0)
+PASS nivel 4 completo  ('LEVEL_COMPLETE', 0, 0, 0)
+PASS nivel 5 = BOSS INTRO
+PASS BOSS FIGHT
+PASS boss recibe daño  (458, 425)
+PASS barra de vida del boss
+PASS fase final del boss
+PASS boss muere -> victoria  ¡BOSS DERROTADO!
+PASS continúa campaña tras boss (nivel 6)
+PASS boss nivel 10 (DESTROYER)  ('BOSS_FIGHT', 'LEVEL_COMPLETE')
+PASS boss nivel 15 (ALIEN MOTHER)  ('BOSS_FIGHT', 'LEVEL_COMPLETE')
+PASS boss nivel 20 (BLACK HOLE)  ('BOSS_FIGHT', 'LEVEL_COMPLETE')
+PASS boss nivel 25 (METEOR KING)  ('BOSS_FIGHT', 'LEVEL_COMPLETE')
+PASS nivel 8 en curso sin errores  {'m': 'n1,n2,a3,n1', 'a': ''}
+PASS nivel 9 en curso sin errores  {'m': 'a1,a1,a3', 'a': ''}
+PASS nivel 17 en curso sin errores  {'m': 'n3,e3,n3', 'a': ''}
+PASS nivel 19 en curso sin errores  {'m': 'e3,n2,n1,n2,n3', 'a': ''}
+FAIL GAME OVER  {'st': 'GAME_OVER', 'sh': 0, 'le': False, 'pd': True, 'inv': 1.6, 'over': False}
+PASS REINTENTAR
+PASS SALIR AL MENÚ
+PASS tienda abre
+PASS compra y equipa  {'cannon': 'titan', 'bullet': 'plasma', 'skin': 'crimson'}
+PASS pantalla #s-settings
+PASS pantalla #s-info
+PASS pantalla #s-records
+PASS guardado en localStorage  26
+PASS sin errores JS registrados
+PASS sin errores de página
+FPS aprox headless: 27.1 tier 0
+
+56/60 OK
+  FAIL escena 3D renderizada (no negra) None
+  FAIL disparo automático 4
+  FAIL monedas recolectadas 0
+  FAIL GAME OVER {'st': 'GAME_OVER', 'sh': 0, 'le': False, 'pd': True, 'inv': 1.6, 'over': False}

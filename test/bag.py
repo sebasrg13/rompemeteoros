@@ -1,0 +1,126 @@
+"""Bolsa en riesgo de la campaña: cobrar, perder, abandonar, recuperación. Uso: python3 test/bag.py"""
+import os, sys, time
+from playwright.sync_api import sync_playwright
+sys.path.insert(0, os.path.dirname(__file__))
+from smoke import URL, OUT, ARGS
+from full import check, RESULTS, st, visible, wait_state
+
+def boot(pg):
+    pg.goto(URL)
+    pg.wait_for_function('window.__BB_READY === true', timeout=30000)
+    pg.click('#btn-start')
+    pg.wait_for_timeout(600)
+
+def wallet(pg): return pg.evaluate('BB.game.save.data.coins')
+
+def complete(pg):
+    pg.evaluate('BB.game.levelComplete()')
+    return wait_state(pg, ['LEVEL_COMPLETE'], 5)
+
+def main():
+    with sync_playwright() as p:
+        b = p.chromium.launch(args=ARGS)
+        ctx = b.new_context(viewport={'width': 390, 'height': 844}, device_scale_factor=1, is_mobile=True, has_touch=True)
+        pg = ctx.new_page()
+        errs = []
+        pg.on('pageerror', lambda e: errs.append(str(e)))
+        boot(pg)
+        pg.evaluate('BB.game.save.data.coins = 1000; BB.game.save.data.selected = 1')
+        pg.click('#btn-play'); pg.wait_for_timeout(600)
+        pg.evaluate('BB.game.shields = 99')
+        pg.evaluate('BB.game.addCoins(200)')
+        check('monedas van a la bolsa, no a la billetera', pg.evaluate('BB.game.bag') == 200 and wallet(pg) == 1000)
+        pg.wait_for_timeout(400)
+        check('HUD muestra la bolsa en riesgo', pg.evaluate("document.getElementById('bb').classList.contains('risk')") and pg.inner_text('#h-mult') == 'x1.0')
+        check('nivel 1 completo', complete(pg) == 'LEVEL_COMPLETE')
+        m1, bag1 = pg.evaluate('BB.game.bagMult'), pg.evaluate('BB.game.bag')
+        check('multiplicador sube a x1.15 y bono de nivel entra a la bolsa', abs(m1 - 1.15) < 1e-6 and bag1 > 200 and wallet(pg) == 1000, (m1, bag1))
+        check('pantalla muestra bolsa, SIGUIENTE NIVEL y COBRAR', visible(pg, '#c-bag') and visible(pg, '#btn-next') and 'COBRAR' in pg.inner_text('#btn-c-menu'))
+        check('bolsa pendiente guardada por si se cierra la app', pg.evaluate('!!BB.game.save.data.runBag'))
+        pg.wait_for_timeout(600)
+        pg.screenshot(path=OUT + '/b1_complete.png')
+        pg.click('#btn-next'); pg.wait_for_timeout(600)
+        check('seguir: nivel 2 y la bolsa vuelve a estar en riesgo', st(pg) == 'PLAYING' and pg.evaluate('BB.game.level.num') == 2 and pg.evaluate('BB.game.save.data.runBag') is None)
+        pg.evaluate('BB.game.shields = 99; BB.game.addCoins(100)')
+        pg.wait_for_timeout(300)
+        pg.screenshot(path=OUT + '/b2_hud.png')
+        complete(pg)
+        m2, bag2 = pg.evaluate('BB.game.bagMult'), pg.evaluate('BB.game.bag')
+        exp = round(bag2 * m2)
+        check('x1.3 tras 2 niveles', abs(m2 - 1.3) < 1e-6, m2)
+        pg.click('#btn-c-menu'); pg.wait_for_timeout(700)
+        check('COBRAR: billetera += bolsa × multiplicador', wallet(pg) == 1000 + exp and st(pg) == 'MENU', (wallet(pg), 1000 + exp))
+        check('aviso de cobro en el menú', visible(pg, '#m-notice') and 'COBRASTE' in pg.inner_text('#m-notice'))
+        pg.wait_for_timeout(900)
+        pg.screenshot(path=OUT + '/b3_cashed.png')
+        check('récord de cobro', pg.evaluate('BB.game.save.data.stats.bestCash') == exp)
+        check('cobrar reinicia: ciclo 1 y vuelve al nivel 1', pg.evaluate('BB.game.camp().cycle') == 1 and pg.evaluate('BB.game.campStart()') == 1 and 'CICLO 1' in pg.inner_text('#m-sub'), pg.inner_text('#m-sub'))
+        w = wallet(pg)
+        # perder la bolsa
+        pg.click('#btn-play'); pg.wait_for_timeout(600)
+        check('nueva partida empieza en nivel 1 con bolsa 0 y x1.0', pg.evaluate('BB.game.level.num') == 1 and pg.evaluate('BB.game.bag') == 0 and pg.evaluate('BB.game.bagMult') == 1)
+        pg.evaluate('BB.game.addCoins(300)')
+        complete(pg)
+        pg.click('#btn-next'); pg.wait_for_timeout(500)
+        pg.evaluate('BB.game.addCoins(50)')
+        lostexp = pg.evaluate('BB.game.bagValue()')
+        pg.evaluate('BB.game.boosts.consume("shield"); BB.game.shields = 1; BB.game.player.invuln = 0; BB.game.hitPlayer("test")')
+        wait_state(pg, ['GAME_OVER'], 5)
+        t0 = time.time()
+        while time.time() - t0 < 8 and not visible(pg, '#s-over'): time.sleep(0.25)
+        check('GAME OVER: se pierde toda la bolsa', wallet(pg) == w and pg.evaluate('BB.game.bag') == 0, (wallet(pg), w))
+        check('pantalla muestra BOLSA PERDIDA', visible(pg, '#o-lost') and U(pg.inner_text('#o-lost')).find(fmt(lostexp)) >= 0, pg.inner_text('#o-lost'))
+        pg.screenshot(path=OUT + '/b4_lost.png')
+        check('estadística de monedas perdidas', pg.evaluate('BB.game.save.data.stats.coinsLost') == lostexp)
+        check('perder también reinicia y sube el ciclo', pg.evaluate('BB.game.camp().cycle') == 2 and 'NIVEL 1' in pg.inner_text('#btn-retry') and 'CICLO 2' in pg.inner_text('#o-cycle'))
+        # efecto del ciclo: más meteoritos y más monedas en el mismo nivel
+        q0 = pg.evaluate('(()=>{const c=BB.game.camp(), k=c.cycle; c.cycle=0; BB.game.level.start(3); const n0=BB.game.level.queue.length; c.cycle=k; return n0})()')
+        q2 = pg.evaluate('(()=>{BB.game.inCampaign=true; const cfg=BB.game.level.start(3); BB.game.applyCycle(cfg); BB.game.inCampaign=false; return BB.game.level.queue.length})()')
+        check('ciclo 2: +50% de meteoritos en el nivel', q2 >= round(q0 * 1.45), (q0, q2))
+        check('ciclo 2: +40% de monedas', abs(pg.evaluate("BB.game.cycleK('COINS')") - 1.4) < 1e-6)
+        # atajo desde el último boss vencido
+        pg.evaluate('BB.game.camp().checkpoint = 5')
+        pg.click('#btn-o-menu'); pg.wait_for_timeout(400)
+        pg.click('#lvl-next'); pg.wait_for_timeout(200)
+        check('atajo: arrancar después del último boss', 'NIVEL 6' in pg.inner_text('#m-level') and 'x0.8' in pg.inner_text('#m-level'), pg.inner_text('#m-level'))
+        pg.screenshot(path=OUT + '/b7_shortcut.png')
+        pg.click('#btn-play'); pg.wait_for_timeout(600)
+        check('atajo arranca en nivel 6 con x0.8', pg.evaluate('BB.game.level.num') == 6 and abs(pg.evaluate('BB.game.bagMult') - 0.8) < 1e-6)
+        pg.evaluate('BB.game.toMenu()'); pg.wait_for_timeout(300)
+        check('abandonar sin superar niveles no sube el ciclo', pg.evaluate('BB.game.camp().cycle') == 2)
+        pg.click('#lvl-prev'); pg.wait_for_timeout(200)
+        pg.click('#btn-play'); pg.wait_for_timeout(600)
+        pg.evaluate('BB.game.toMenu()'); pg.wait_for_timeout(300)
+        pg.click('#btn-play'); pg.wait_for_timeout(600)
+        pg.evaluate('BB.game.shields = 99')
+        check('volver al nivel 1', pg.evaluate('BB.game.level.num') == 1)
+        pg.evaluate('BB.game.toMenu()'); pg.wait_for_timeout(300)
+        # abandonar desde pausa
+        pg.click('#btn-play'); pg.wait_for_timeout(600)
+        pg.evaluate('BB.game.addCoins(80)')
+        pg.click('#btn-pause'); pg.wait_for_timeout(300)
+        check('pausa avisa que abandonar pierde la bolsa', 'PERDÉS LA BOLSA' in pg.inner_text('#btn-quit'), pg.inner_text('#btn-quit'))
+        pg.click('#btn-quit'); pg.wait_for_timeout(500)
+        check('abandonar: bolsa perdida, billetera intacta', wallet(pg) == w and st(pg) == 'MENU' and 'PERDIDA' in pg.inner_text('#m-notice'))
+        # monedas fuera de campaña (PvP/MOBA) van directo a la billetera
+        pg.evaluate('BB.game.addCoins(25)')
+        check('fuera de campaña las monedas van a la billetera', wallet(pg) == w + 25)
+        # app cerrada en la pantalla de nivel completado -> se cobra al volver
+        pg.click('#btn-play'); pg.wait_for_timeout(600)
+        pg.evaluate('BB.game.addCoins(100)')
+        complete(pg)
+        pend = pg.evaluate('BB.game.bagValue()')
+        before = wallet(pg)
+        pg.evaluate('BB.game.save.save(true)')
+        boot(pg)
+        check('al reabrir se cobra la bolsa pendiente', wallet(pg) == before + pend and 'PENDIENTE' in pg.inner_text('#m-notice'), (wallet(pg), before, pend))
+        check('sin errores JS', not errs, errs[:3])
+        b.close()
+    fails = [r for r in RESULTS if not r[1]]
+    print('\n%d/%d OK' % (len(RESULTS) - len(fails), len(RESULTS)))
+
+def U(s): return s.replace('.', '')
+def fmt(n): return str(n)
+
+if __name__ == '__main__':
+    main()
