@@ -11,8 +11,8 @@ def ksFile = file('rompemeteoros.keystore')
 def ksProps = new Properties()
 def kpf = rootProject.file('keystore.properties')
 if (kpf.exists()) kpf.withInputStream { ksProps.load(it) }
-def ksPass = System.getenv('KEYSTORE_PASSWORD') ?: ksProps.getProperty('storePassword')
-def keyPass = System.getenv('KEY_PASSWORD') ?: ksProps.getProperty('keyPassword') ?: ksPass
+def ksPass = (System.getenv('KEYSTORE_PASSWORD') ?: ksProps.getProperty('storePassword'))?.trim()
+def keyPass = (System.getenv('KEY_PASSWORD') ?: ksProps.getProperty('keyPassword') ?: ksPass)?.trim()
 
 android {
     namespace 'com.rompemeteoros.app'

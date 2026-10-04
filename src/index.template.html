@@ -1,5 +1,5 @@
 <!--HEAD-->
-<title>Rompemeteoros · Cobrá o arriesgá</title>
+<title>Rompemeteoros · ¿Seguís o aterrizás?</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=Russo+One&display=swap">
@@ -361,7 +361,10 @@ input[type=range]{width:100%;accent-color:var(--cyan);height:34px}
 #h-coinchip svg{width:17px;height:17px}
 .hud-r{min-width:0}
 #s-complete .panel{overflow-y:auto;overscroll-behavior:contain}
-@media (max-height:760px){#s-complete .panel{gap:9px;padding:16px 16px}#s-complete .row.small{display:none}#s-complete h2{font-size:30px}#s-complete .row{padding:6px 4px}.bagbox{padding:7px 10px}.bagbox .amt{font-size:25px}#s-complete .card{padding:6px 4px}}
+#s-complete h2{font-size:clamp(23px,7.4vw,31px);white-space:nowrap}
+#s-complete .row.small{padding:4px 4px}
+@media (max-height:760px){.cxp{top:3px}#s-complete .panel{gap:8px;padding:21px 16px 14px}#s-complete .row.small{display:none}#s-complete .row{padding:6px 4px}.bagbox{padding:7px 10px}.bagbox .amt{font-size:25px}#s-complete .card{padding:6px 4px}#s-complete .reward h3{font-size:10px;letter-spacing:.08em;white-space:nowrap}}
+@media (max-height:650px){#s-complete .bagbox .warn{display:none}}
 #h-coinchip .bagm{display:none;position:absolute;right:-2px;bottom:-11px;font-style:normal;font-family:var(--fd);font-size:10.5px;line-height:1;padding:2px 5px;border-radius:6px;background:#ff9d1e;color:#2a1600;letter-spacing:.04em}
 #bb.risk #h-coinchip{border-color:rgba(255,160,40,.85);box-shadow:0 0 14px rgba(255,150,30,.35)}
 #bb.risk #h-coinchip .bagm{display:inline}
@@ -430,6 +433,8 @@ input[type=range]{width:100%;accent-color:var(--cyan);height:34px}
 .cupinfo b{color:var(--ink)}
 .item .mlsw{background:rgba(111,92,255,.18);border:1.5px solid #8e7bff;color:#c9bcff}
 .buy.ml svg{width:16px;height:16px;vertical-align:-3px;margin-right:4px}
+.buy.ml{background:linear-gradient(180deg,#cfc6ff,#7b67ff);color:#10083a;box-shadow:0 3px 0 #3a2c9c}
+.buy.ml.no{background:#262d5c;color:#9d94d8;box-shadow:none}
 .packs{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px}
 .pack{position:relative;display:flex;flex-direction:column;align-items:center;gap:2px;padding:14px 8px 12px;border-radius:12px;border:1.5px solid rgba(140,120,255,.55);background:linear-gradient(180deg,rgba(40,30,110,.95),rgba(16,14,50,.95));color:var(--ink)}
 .pack svg{width:36px;height:36px;margin-bottom:4px}
@@ -505,6 +510,78 @@ input[type=range]{width:100%;accent-color:var(--cyan);height:34px}
 .fld select,.fld-in{min-height:46px;border-radius:8px;border:1px solid rgba(110,140,255,.5);background:#0d1440;color:var(--ink);font-size:16px;padding:0 10px;font-family:var(--fb)}
 .fld-in{width:100%;box-sizing:border-box}
 #s-rank .vhead .btn.small{min-height:40px;font-size:12px;padding:0 10px}
+.appicon{width:min(34vw,150px);height:auto;aspect-ratio:1;border-radius:24%;box-shadow:0 14px 34px rgba(0,0,0,.5),0 0 0 3px rgba(255,255,255,.08);margin-bottom:18px}
+
+/* ---------- PREMIUM de campaña ---------- */
+.lvbar{position:relative;height:16px;margin-top:6px;border-radius:8px;background:rgba(255,255,255,.09);overflow:hidden;max-width:230px}
+.lvbar i{position:absolute;left:0;top:0;bottom:0;background:linear-gradient(90deg,var(--mint),var(--cyan))}
+.lvbar span{position:relative;display:block;text-align:center;font-size:10.5px;font-weight:800;letter-spacing:.1em;line-height:16px;color:#fff;text-shadow:0 1px 2px #000}
+.corehint{margin-top:5px;font-size:11px;font-weight:700;color:#c9bcff}
+.item.prem{border-color:rgba(150,130,255,.55);background:linear-gradient(135deg,rgba(40,30,110,.9),rgba(16,23,66,.9))}
+.item.prem.eq{border-color:#b7a6ff;box-shadow:inset 0 0 0 1px rgba(183,166,255,.4),0 0 16px rgba(123,103,255,.25)}
+.preminfo{grid-column:1/-1}
+.shead{grid-column:1/-1;display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin-top:6px;padding:0 2px}
+.shead b{font-family:var(--fd);font-weight:400;font-size:15px;letter-spacing:.1em;color:var(--cyan)}
+.shead small{font-size:11.5px;font-weight:700;letter-spacing:.06em;color:var(--muted);display:flex;align-items:center;gap:4px}
+.shead small svg{width:13px;height:13px}
+.item.skin{cursor:pointer}
+.item.skin .sw{border-radius:10px}
+.item.skin .sw.flag{width:54px;height:36px;border-radius:5px}
+.item.skin.trying{border-color:var(--gold);box-shadow:inset 0 0 0 1px rgba(255,200,60,.4)}
+.item .nm .tag{font-style:normal;font-family:var(--fb);font-size:9.5px;font-weight:700;letter-spacing:.1em;color:var(--mint);border:1px solid rgba(92,255,157,.6);border-radius:4px;padding:1px 5px;margin-left:6px;vertical-align:2px;white-space:nowrap}
+.item .nm .tag.try{color:var(--gold);border-color:rgba(255,200,60,.6)}
+.btn.getml{grid-column:1/-1;gap:8px;background:linear-gradient(180deg,#cfc6ff,#7b67ff);color:#10083a}
+.btn.getml svg{width:20px;height:20px}
+.pshield{position:absolute;left:calc(var(--sal) + 10px);bottom:calc(var(--sab) + 96px);width:66px;height:66px;border-radius:50%;border:0;z-index:4;pointer-events:auto;touch-action:none;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0;color:#fff;
+  background:radial-gradient(circle at 50% 35%,rgba(120,180,255,.25),rgba(8,12,40,.9) 70%) padding-box,conic-gradient(#5ca8ff calc(var(--p,1)*360deg),rgba(255,255,255,.14) 0) border-box;border:4px solid transparent;filter:grayscale(.7) brightness(.75)}
+.pshield svg{width:24px;height:24px}
+.pshield small{font-family:var(--fd);font-size:10px;letter-spacing:.04em;line-height:1.1}
+.pshield.ready{filter:none;box-shadow:0 0 18px rgba(92,168,255,.7);animation:pready 1.4s ease-in-out infinite}
+.pshield.active{filter:none;box-shadow:0 0 22px rgba(92,255,157,.7);background:radial-gradient(circle at 50% 35%,rgba(120,255,180,.3),rgba(8,12,40,.9) 70%) padding-box,conic-gradient(#5cff9d calc(var(--p,1)*360deg),rgba(255,255,255,.14) 0) border-box}
+@keyframes pready{0%,100%{transform:scale(1)}50%{transform:scale(1.07)}}
+.duel .pshield{display:none}
+/* nivel de nave */
+.xpbar{display:block;height:6px;border-radius:4px;background:rgba(255,255,255,.12);overflow:hidden}
+.xpbar>i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--gold),#ff9a3d);transition:width .3s}
+.shipbar{display:flex;align-items:center;gap:10px;width:min(340px,86vw);padding:7px 10px 7px 12px;border-radius:10px;border:1px solid rgba(255,200,60,.5);background:rgba(40,28,8,.55);color:#fff;font:inherit;cursor:pointer;text-align:left}
+.shipbar .sl{display:flex;flex-direction:column;align-items:center;line-height:1;flex:none}
+.shipbar .sl small{font-size:9px;letter-spacing:.2em;color:var(--gold);font-weight:700}
+.shipbar .sl b{font-family:var(--fd);font-weight:400;font-size:24px;color:var(--gold)}
+.shipbar .sx{flex:1;min-width:0;display:flex;flex-direction:column;gap:4px}
+.shipbar em{font-style:normal;font-size:10.5px;letter-spacing:.12em;color:var(--muted);font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.shipbar svg{width:16px;height:16px;flex:none;opacity:.7}
+.hud-xp{display:flex;align-items:center;gap:6px}
+.hud-xp b{font-family:var(--fd);font-weight:400;font-size:12px;letter-spacing:.08em;color:var(--gold)}
+.hud-xp .xpbar{width:46px;height:5px}
+.hud-xp .pas{display:flex;gap:3px}
+.hud-xp .pas i{font-style:normal;font-size:13px;line-height:1;color:var(--mint);text-shadow:0 0 6px rgba(92,255,157,.7)}
+.hud-xp .pas i.off{color:#6b76a8;text-shadow:none;opacity:.6}
+.shipcard{display:flex;gap:14px;align-items:center;padding:14px;border-radius:10px;border:1px solid rgba(255,200,60,.5);background:rgba(40,28,8,.6)}
+.shiplv{display:flex;flex-direction:column;align-items:center;flex:none;min-width:64px}
+.shiplv small{font-size:11px;letter-spacing:.2em;color:var(--gold);font-weight:700}
+.shiplv b{font-family:var(--fd);font-weight:400;font-size:52px;line-height:1;color:var(--gold)}
+.shipxp{flex:1;min-width:0;display:flex;flex-direction:column;gap:6px}
+.shipxp .xpbar{height:9px}
+.shipxp span{font-family:var(--fd);font-size:14px;letter-spacing:.05em}
+.shipxp p{margin:0;font-size:12.5px;line-height:1.4;color:var(--muted)}
+.zigline{padding:10px 12px;border-radius:10px;border:1px dashed rgba(142,123,255,.7);font-size:13px;line-height:1.4;color:#cdd5f5}
+.zigline b{display:block;font-family:var(--fd);font-weight:400;letter-spacing:.06em;color:#c9bcff}
+.zigline.on{border-style:solid;border-color:#ff9a3d}.zigline.on b{color:#ffb35c}
+.zigline small{display:block;color:var(--muted);margin-top:2px}
+.pashead{font-family:var(--fd);font-size:13px;letter-spacing:.12em;color:var(--cyan);margin-top:4px}
+.item.pas .sw{background:rgba(92,255,157,.12);border:1.5px solid rgba(92,255,157,.6);color:var(--mint)}
+.item.pas em{font-style:normal;font-family:var(--fd);font-size:12px;letter-spacing:.06em;color:var(--mint);flex:none;text-align:right}
+.item.pas.lock{opacity:.62}.item.pas.lock .sw{background:rgba(255,255,255,.05);border-color:rgba(255,255,255,.25);color:var(--muted)}
+.item.pas.lock em{color:var(--gold)}
+.item.pas:not(.eq):not(.lock) em{color:#c9bcff}
+.row.xp b{color:var(--gold);white-space:nowrap}
+.row.xp span:first-child{white-space:nowrap;font-size:13px}
+.row.xp .xpbar{flex:1;margin:0 10px;min-width:30px}
+.cxp{position:absolute;top:5px;left:30px;right:22px;display:flex;align-items:center;gap:8px;font-size:10px;font-weight:700;letter-spacing:.12em;color:var(--gold);white-space:nowrap}
+.cxp .xpbar{flex:1;min-width:30px;height:5px}
+.cxp b{font-family:var(--fd);font-weight:400;font-size:12px;letter-spacing:.04em}
+.cxp.up span:first-child{color:#fff;text-shadow:0 0 10px rgba(255,200,60,.9)}
+.duel .hud-xp,.cup .hud-xp{display:none}
 </style>
 <!--/HEAD-->
 <div id="bb">
@@ -514,7 +591,8 @@ input[type=range]{width:100%;accent-color:var(--cyan);height:34px}
 
   <!-- CARGA -->
   <section class="scr" id="s-loading">
-    <div class="logo"><div class="l1">ROMPEMETEOROS</div><div class="l2">COBRÁ O ARRIESGÁ</div></div>
+    <img class="appicon" alt="" src="data:image/jpeg;base64,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">
+    <div class="logo"><div class="l1">ROMPEMETEOROS</div><div class="l2">¿SEGUÍS O ATERRIZÁS?</div></div>
     <div class="loadbox">
       <div class="bar"><i id="load-bar"></i></div>
       <div class="loadtxt" id="load-txt">CARGANDO…</div>
@@ -531,12 +609,17 @@ input[type=range]{width:100%;accent-color:var(--cyan);height:34px}
       <span class="chip" title="Trofeos PvP" style="border-color:rgba(255,90,140,.6)"><svg viewBox="0 0 24 24"><use href="#i-cup"/></svg><span id="m-trophies">0</span></span>
     </div>
     <div class="menu-mid">
-      <div class="logo"><div class="l1">ROMPEMETEOROS</div><div class="l2">COBRÁ O ARRIESGÁ</div></div>
+      <div class="logo"><div class="l1">ROMPEMETEOROS</div><div class="l2">¿SEGUÍS O ATERRIZÁS?</div></div>
       <div class="lvlsel">
         <button class="iconbtn" id="lvl-prev" aria-label="Nivel anterior"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
         <div class="val"><small id="m-lvl-lab">ARRANCÁS EN</small><span id="m-level">NIVEL 1</span></div>
         <button class="iconbtn" id="lvl-next" aria-label="Nivel siguiente"><svg viewBox="0 0 24 24"><path d="M9 5l7 7-7 7" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
       </div>
+      <button class="shipbar" id="m-ship" aria-label="Mi nave: nivel y pasivas">
+        <span class="sl"><small>NAVE</small><b id="m-shiplv">1</b></span>
+        <span class="sx"><span class="xpbar"><i id="m-shipbar"></i></span><em id="m-shipnext"></em></span>
+        <svg viewBox="0 0 24 24"><path d="M9 5l7 7-7 7" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
       <div class="menu-btns">
         <button class="btn primary" id="btn-play">JUGAR</button>
         <div class="menu-row">
@@ -564,6 +647,7 @@ input[type=range]{width:100%;accent-color:var(--cyan);height:34px}
       <div class="hud-l">
         <div class="hud-lvl">NIVEL<b id="h-level">1</b></div>
         <div class="shields" id="h-shields"></div>
+        <div class="hud-xp" id="h-xp" hidden><b id="h-xplv">NV 1</b><span class="xpbar"><i id="h-xpbar"></i></span><span class="pas" id="h-pas"></span></div>
         <div class="myhp" id="my-hpw"><div><i id="my-hp"></i></div><b id="my-hpv">100%</b></div>
       </div>
       <div class="hud-c">
@@ -591,6 +675,7 @@ input[type=range]{width:100%;accent-color:var(--cyan);height:34px}
     <div class="toasts" id="toasts"></div>
     <div class="hint" id="h-hint" hidden><svg viewBox="0 0 24 24"><path d="M9 11V5a2 2 0 014 0v5l4 .8a2 2 0 011.6 2.2l-.6 5a3 3 0 01-3 2.6h-4.3a3 3 0 01-2.5-1.3L5 15.5a1.6 1.6 0 012.4-2L9 15" fill="none" stroke="#3be8ff" stroke-width="1.8" stroke-linejoin="round"/></svg>ARRASTRÁ PARA MOVERTE</div>
     <div class="arsenal-hud" id="h-arsenal" hidden></div>
+    <button class="pshield" id="h-pshield" hidden aria-label="Escudo de emergencia"><svg viewBox="0 0 24 24"><use href="#i-shield"/></svg><small id="h-pshield-t">LISTO</small></button>
     <div class="hud-bot">
       <div class="boosts" id="h-boosts"></div>
       <div class="inv" id="h-inv"><span class="lab">BOOSTS</span></div>
@@ -618,6 +703,7 @@ input[type=range]{width:100%;accent-color:var(--cyan);height:34px}
     <div class="panel">
       <h2 class="win" id="c-title">NIVEL COMPLETADO</h2>
       <div class="sub" id="c-sub">NIVEL 1</div>
+      <div class="cxp" id="c-xp" hidden></div>
       <div class="rows" id="c-rows"></div>
       <div class="reward">
         <h3>RECOMPENSA OPCIONAL · GUARDÁ UN BOOST</h3>
@@ -626,7 +712,7 @@ input[type=range]{width:100%;accent-color:var(--cyan);height:34px}
       <div class="btncol">
         <div class="bagbox" id="c-bag"></div>
         <button class="btn primary" id="btn-next">SIGUIENTE NIVEL<small id="c-risk">ARRIESGÁS LA BOLSA</small></button>
-        <button class="btn cash" id="btn-c-menu">COBRAR Y SALIR</button>
+        <button class="btn cash" id="btn-c-menu">ATERRIZAR</button>
         <button class="btn ghost small" id="btn-c-shop">TIENDA</button>
       </div>
     </div>
@@ -652,7 +738,7 @@ input[type=range]{width:100%;accent-color:var(--cyan);height:34px}
     <div class="vhead">
       <button class="iconbtn" id="shop-back" aria-label="Volver"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
       <h2>TIENDA</h2>
-      <span class="chip"><svg class="coin-ic" viewBox="0 0 24 24"><use href="#i-coin"/></svg><span id="shop-coins">0</span></span>
+      <span class="chips2"><span class="chip"><svg class="coin-ic" viewBox="0 0 24 24"><use href="#i-coin"/></svg><span id="shop-coins">0</span></span><span class="chip ml" id="shop-mlchip" hidden><svg viewBox="0 0 24 24"><use href="#i-moon"/></svg><span id="shop-ml">0</span></span></span>
     </div>
     <div class="shop-spacer"></div>
     <div class="tabs" id="shop-tabs"></div>
@@ -687,6 +773,15 @@ input[type=range]{width:100%;accent-color:var(--cyan);height:34px}
       <h2>INFORMACIÓN</h2><span style="width:52px"></span>
     </div>
     <div class="vbody" id="info-body"></div>
+  </section>
+
+  <!-- MI NAVE -->
+  <section class="view dim" id="s-ship" hidden>
+    <div class="vhead">
+      <button class="iconbtn" id="ship-back" aria-label="Volver"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+      <h2>MI NAVE</h2><span style="width:52px"></span>
+    </div>
+    <div class="vbody" id="ship-body"></div>
   </section>
 
   <!-- RÉCORDS -->
@@ -784,7 +879,7 @@ input[type=range]{width:100%;accent-color:var(--cyan);height:34px}
       <div class="cupnote bad" id="rank-note" hidden></div>
       <div class="cupme" id="rank-me"></div>
       <div class="tabs rtabs" id="rank-tabs"><button class="tab on" data-sc="g">GLOBAL<small></small></button><button class="tab" data-sc="c">CONTINENTE<small></small></button><button class="tab" data-sc="p">PAÍS<small></small></button><button class="tab" data-sc="y">CIUDAD<small></small></button></div>
-      <p class="cupinfo">TOP 100 · mejor puntaje de un recorrido de campaña (desde que arrancás hasta que cobrás o perdés).</p>
+      <p class="cupinfo">TOP 100 · mejor puntaje de un recorrido de campaña (desde que arrancás hasta que aterrizás o perdés).</p>
       <div id="rank-list"></div>
     </div>
     <div class="cupmodal" id="loc-modal" hidden>
@@ -836,14 +931,14 @@ input[type=range]{width:100%;accent-color:var(--cyan);height:34px}
       <div class="btncol">
         <button class="btn primary" id="cr-retry">ARRIESGAR</button>
         <div class="btnrow"><button class="btn ghost" id="cr-rank">RANKING</button><button class="btn ghost" id="cr-up">MEJORAS</button></div>
-        <button class="btn ghost small" id="cr-menu">ME PLANTO · MENÚ</button>
+        <button class="btn ghost small" id="cr-menu">ATERRIZAR · MENÚ</button>
       </div>
     </div>
   </section>
 
   <!-- ERROR -->
   <section class="scr" id="s-error" hidden>
-    <div class="logo"><div class="l1" style="font-size:34px">ROMPEMETEOROS</div><div class="l2">COBRÁ O ARRIESGÁ</div></div>
+    <div class="logo"><div class="l1" style="font-size:34px">ROMPEMETEOROS</div><div class="l2">¿SEGUÍS O ATERRIZÁS?</div></div>
     <h2 style="margin:0;font-family:var(--fd);font-weight:400;font-size:22px" id="err-title">No se pudieron iniciar los gráficos 3D</h2>
     <p id="err-msg">Tu navegador no permitió crear la escena WebGL. Cerrá otras pestañas o apps que usen gráficos y probá de nuevo. Si usás Safari, verificá que WebGL esté activado.</p>
     <button class="btn primary" id="err-retry" style="width:min(300px,80vw)">REINTENTAR</button>

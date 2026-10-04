@@ -516,6 +516,8 @@
       gl.uniformMatrix4fv(p.u.uModel, false, model);
       gl.uniform3fv(p.u.uTint, s.tint);
       gl.uniform1f(p.u.uScroll, s.scroll || 0);
+      if (s.hex && p.u.uTex2) { this.bindTexture(s.hex, 1); gl.uniform1i(p.u.uTex2, 1); gl.activeTexture(gl.TEXTURE0); }
+      if (p.u.uMove) gl.uniform4f(p.u.uMove, s.pos || 0, s.halfW || 4.6, s.kx || 1, s.ky || 1);
       gl.drawArrays(gl.TRIANGLES, 0, s.geo.count);
       this.stats.calls++;
       gl.enable(gl.CULL_FACE);
@@ -602,6 +604,17 @@
       d[o++] = cx + ax - bx; d[o++] = cy + ay - by; d[o++] = cz + az - bz; d[o++] = u1; d[o++] = v1; d[o++] = r; d[o++] = g; d[o++] = b; d[o++] = a;
       d[o++] = cx + ax + bx; d[o++] = cy + ay + by; d[o++] = cz + az + bz; d[o++] = u1; d[o++] = v0; d[o++] = r; d[o++] = g; d[o++] = b; d[o++] = a;
       d[o++] = cx - ax + bx; d[o++] = cy - ay + by; d[o++] = cz - az + bz; d[o++] = u0; d[o++] = v0; d[o++] = r; d[o++] = g; d[o++] = b; d[o++] = a;
+      this.count++;
+    }
+    // cuadrilátero libre: 4 puntos en mundo (abajo-izq, abajo-der, arriba-der, arriba-izq) y rectángulo UV
+    quad4(P, i0, i1, i2, i3, u0, v0, u1, v1, r, g, b, a) {
+      if (this.count >= this.cap) return;
+      const d = this.data;
+      let o = this.count * 36;
+      d[o++] = P[i0]; d[o++] = P[i0 + 1]; d[o++] = P[i0 + 2]; d[o++] = u0; d[o++] = v1; d[o++] = r; d[o++] = g; d[o++] = b; d[o++] = a;
+      d[o++] = P[i1]; d[o++] = P[i1 + 1]; d[o++] = P[i1 + 2]; d[o++] = u1; d[o++] = v1; d[o++] = r; d[o++] = g; d[o++] = b; d[o++] = a;
+      d[o++] = P[i2]; d[o++] = P[i2 + 1]; d[o++] = P[i2 + 2]; d[o++] = u1; d[o++] = v0; d[o++] = r; d[o++] = g; d[o++] = b; d[o++] = a;
+      d[o++] = P[i3]; d[o++] = P[i3 + 1]; d[o++] = P[i3 + 2]; d[o++] = u0; d[o++] = v0; d[o++] = r; d[o++] = g; d[o++] = b; d[o++] = a;
       this.count++;
     }
     // billboard orientado a cámara (posición en mundo)

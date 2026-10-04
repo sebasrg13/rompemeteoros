@@ -45,7 +45,15 @@
       const b = this.pb.find((o) => !o.alive);
       if (!b) return null;
       b.alive = true; b.x = x; b.y = y; b.z = z; b.vx = vx; b.vy = vy; b.dmg = dmg; b.r = r;
-      b.pierce = this.ptype ? this.ptype.pierce : 0; b.last = null; b.life = 1.6;
+      b.pierce = this.ptype ? this.ptype.pierce : 0; b.last = null; b.life = 1.6; b.zig = false;
+      return b;
+    }
+
+    // LANZALLAMAS ZIGZAG (premium): bola de fuego que sube serpenteando y atraviesa enemigos
+    fireZigzag(x, y, z, dmg, dir) {
+      const b = this.firePlayer(x, y, z, 0, 15, dmg, 0.36);
+      if (!b) return null;
+      b.zig = true; b.zx = x; b.zt = 0; b.zdir = dir || 1; b.pierce = 4; b.life = 2.4;
       return b;
     }
 
@@ -77,6 +85,14 @@
       const wells = g.gravityWells;
       for (const b of this.pb) {
         if (!b.alive) continue;
+        if (b.zig) {
+          b.zt += dt;
+          b.x = U.clamp(b.zx + Math.sin(b.zt * 6.5) * 2.1 * b.zdir, -A.halfW + 0.4, A.halfW - 0.4);
+          b.y += b.vy * dt; b.life -= dt;
+          g.fx.emit(b.x + U.rand(-0.15, 0.15), b.y - 0.2, b.z, 0, -1.5, 0.4, 0.35, 0.5, 0.05, Math.random() < 0.5 ? [1, 0.4, 0.08] : [1, 0.75, 0.2], 0.8, 0, true, 1, 0);
+          if (b.y > A.top + 4 || b.life <= 0) b.alive = false;
+          continue;
+        }
         if (wells.length) this.bend(b, wells, dt, 1);
         b.x += b.vx * dt; b.y += b.vy * dt; b.life -= dt;
         if (b.y > A.top + 4 || b.y < -3 || b.x < -A.halfW - 1 || b.x > A.halfW + 1 || b.life <= 0) b.alive = false;
@@ -128,6 +144,12 @@
       const pc = this.matP.color;
       for (const b of this.pb) {
         if (!b.alive) continue;
+        if (b.zig) {   // bola de fuego: solo resplandores
+          add.bill(b.x, b.z, -b.y, 1.5, 1.5, 0, uv.glow, 1, 0.4, 0.08, 0.9);
+          add.bill(b.x, b.z, -b.y, 0.8, 0.8, 0, uv.glow, 1, 0.85, 0.3, 0.95);
+          add.bill(b.x, b.z, -b.y, 0.36, 0.36, 0, uv.core, 1, 1, 0.9, 0.9);
+          continue;
+        }
         const ang = Math.atan2(-b.vx, b.vy);
         bp.push(b.x, b.y, b.z, b.r * 2.1, ang, 1.9, 1, 0);
         // resplandor + estela

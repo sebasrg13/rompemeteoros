@@ -56,7 +56,10 @@
       this.stars = { data: d, count: N, drawCount: N, stride: 5, _gen: -1, warp: 0 };
 
       // suelo de la arena
-      this.surface = { geo: null, tex: null, tint: [1, 1, 1], scroll: 0.35 };
+      // pos/speed: el suelo avanza hacia el jugador (sensación de ir hacia adelante sobre la plataforma)
+      const HR = BB.Tex.HEX_R;
+      this.surface = { geo: null, tex: null, tint: [1, 1, 1], scroll: 0.35, hex: BB.Tex.makeHexTile(), pos: 0, speed: 0, halfW: A.halfW, kx: 1 / (HR * 1.7320508), ky: 1 / (HR * 3) };
+      this.scrollTarget = 1.2;
       this.surfCache = {};
       this.buildSurface(A.halfW);
       this.surfaceModel = M4.create();
@@ -101,7 +104,7 @@
         this.surfCache[hw] = { geo: { data: sd, count: 6, _gen: -1 }, tex: BB.Tex.makeArena(hw, ext), rails: BB.Models.rails(hw, A.top + 12), gate: BB.Models.gate(hw) };
       }
       const c = this.surfCache[hw];
-      this.surface.geo = c.geo; this.surface.tex = c.tex;
+      this.surface.geo = c.geo; this.surface.tex = c.tex; this.surface.halfW = hw;
       if (this.rails) { this.rails.geo = c.rails; this.gate.geo = c.gate; }
     }
 
@@ -211,6 +214,10 @@
       this.bg.tint = U.mixc([1, 1, 1], [1.4, 0.6, 0.65], dz);
       this.bg.pulse = dz * (0.5 + 0.5 * Math.sin(t * 4));
       this.surface.tint = U.mixc([1, 1, 1], [1.9, 0.55, 0.6], dz);
+      // avance del suelo (se repite cada 3,6 unidades: periodo común de rejilla, líneas y marcas)
+      const sf = this.surface;
+      sf.speed = U.damp(sf.speed, this.scrollTarget || 0, 2.2, dt);
+      sf.pos = (sf.pos + sf.speed * dt) % 3.6;
 
       // cámara
       let ex = f.eye[0], ey = f.eye[1], ez = f.eye[2], tx = f.target[0], ty = f.target[1], tz = f.target[2];

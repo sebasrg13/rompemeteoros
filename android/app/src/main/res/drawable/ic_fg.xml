@@ -1,13 +1,2 @@
 <?xml version="1.0" encoding="utf-8"?>
-<vector xmlns:android="http://schemas.android.com/apk/res/android"
-    android:width="108dp" android:height="108dp" android:viewportWidth="108" android:viewportHeight="108">
-    <!-- estela -->
-    <path android:fillColor="#66FF8A3B" android:pathData="M30,30 L62,48 L56,56 Z" />
-    <path android:fillColor="#99FFC83D" android:pathData="M36,36 L62,50 L58,54 Z" />
-    <!-- meteoro -->
-    <path android:fillColor="#FF7A3D" android:pathData="M66,44 L76,48 L80,58 L76,70 L64,74 L54,70 L50,58 L56,48 Z" />
-    <path android:fillColor="#FFB12B" android:pathData="M64,50 L72,52 L74,60 L70,66 L62,68 L57,63 L57,55 Z" />
-    <path android:fillColor="#FFF1A8" android:pathData="M63,56 m-3,0 a3,3 0,1 1,6 0 a3,3 0,1 1,-6 0" />
-    <!-- rayo del cañón -->
-    <path android:fillColor="#3BE8FF" android:pathData="M52,86 L56,86 L66,62 L62,62 Z" />
-</vector>
+<bitmap xmlns:android="http://schemas.android.com/apk/res/android" android:src="@drawable/ic_fg_img" android:gravity="fill" />

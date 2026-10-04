@@ -1,4 +1,4 @@
-# Rompemeteoros — Cobrá o arriesgá
+# Rompemeteoros — ¿Seguís o aterrizás?
 
 Arcade shooter vertical 3D para móviles (iPhone / Android) y PC. HTML5 + JavaScript + WebGL, sin dependencias externas.
 
@@ -23,6 +23,9 @@ Requieren Python + Playwright con Chromium.
 
 ```
 python3 test/arsenal.py  # arsenal, campaña sin pagos y ranking por ubicación
+python3 test/skins.py    # skins de pago: países y especiales, probar, comprar, equipar
+python3 test/ship.py     # nivel de nave, experiencia y pasivas
+python3 test/premium.py  # premium de campaña: escolta, escudo de emergencia, Núcleo de Poder (nivel 50 + zigzag)
 python3 test/cup.py      # copa semanal: ML, mejoras, niveles de 6 s, 3 partidas, cuenta la última, ranking
 python3 test/bag.py      # bolsa en riesgo: cobrar, perder, abandonar, recuperar
 python3 test/full.py     # flujo completo: menú, control táctil, disparo, colisiones, monedas, boosts,
@@ -51,9 +54,49 @@ python3 test/visual.py   # capturas en iPhone SE / Pro / Pro Max, tablet, PC y h
 - 4 gratis (una por tipo); el resto se compra y se mejora **solo con monedas del juego**.
 - Prueba: `python3 test/arsenal.py`.
 
-## Campaña sin pagos
+## Premium de campaña (Monedas Lunares)
 
-- La campaña (tienda y arsenal) se mejora **solo con monedas del juego**. Las Monedas Lunares (dinero real) sirven únicamente para la nave de la Copa Semanal.
+La tienda y el arsenal de la campaña se siguen mejorando con monedas del juego. Aparte, en **TIENDA → ★ PREMIUM** hay 3 mejoras que se activan **solo con Monedas Lunares** y quedan para siempre:
+
+| Mejora | Precio | Qué hace |
+|---|---|---|
+| Escolta permanente | 600 / 900 / 1.500 ML (3 niveles) | 1 a 3 mini naves que te acompañan y disparan toda la campaña. Se suman al boost MINI SQUAD (máx. 5). |
+| Escudo de emergencia | 1.200 ML | Botón extra abajo a la izquierda (tecla E o 4): escudo total 15 s, recarga de 60 s desde que lo usás. |
+| Núcleo de Poder | 3.000 ML | Potencia y Cadencia suben hasta **nivel 50** (los niveles nuevos se pagan con monedas del juego) y suma el **Lanzallamas Zigzag**: bola de fuego que sale sola cada 0,6 s, serpentea y atraviesa hasta 4 enemigos. |
+
+- Vale solo en la campaña: en la Copa Semanal y en el duelo no hay escolta, escudo ni zigzag.
+- Código: `src/managers/PremiumManager.js` (precios y tiempos en `BB.PREMIUM`). Prueba: `python3 test/premium.py`.
+
+## Skins de pago (Monedas Lunares)
+
+- En **TIENDA → SKINS** hay tres grupos: **PAÍSES** (300 ML cada una), **ESPECIALES** (500 ML: Oro Lunar, Neón, Galaxia) y **CLÁSICAS** (con monedas del juego, como antes).
+- Hay una skin por cada país del ranking (28). El ala izquierda, la cúpula y el ala derecha llevan los tres colores del país; la base y las luces completan.
+- Cada skin de país lleva la **bandera real como sticker** pegada arriba de la cúpula, para que se vea desde arriba (reemplaza al núcleo luminoso). Las banderas se dibujan por código en `BB.Tex.drawFlag` (`src/engine/Textures.js`), van al atlas de texturas y se pegan con `BB.drawSticker` (`src/entities/Player.js`). En la tienda se ve la bandera como miniatura. El país del jugador (el de su perfil de ranking) aparece primero con la etiqueta TU PAÍS.
+- Tocar una skin la **prueba** en la nave de la tienda sin comprarla.
+- Solo cambian el aspecto: no dan ventaja y se ven en la campaña, la copa y el duelo (el rival también la ve).
+- "Reiniciar progreso" no borra las skins pagas.
+- Colores en `src/entities/Models.js` (tabla de países dentro de `M.SKINS`), precios en `BB.SKIN_ML` (`src/managers/ShopManager.js`). Para agregar un país: una línea en la tabla de colores, su bandera en `BB.Tex.drawFlag` + `BB.Tex.FLAGS` (hay lugar para 32) y el país en `RankManager.COUNTRIES` si no está. Prueba: `python3 test/skins.py`.
+
+## Nivel de nave y pasivas (gratis)
+
+- La nave gana **experiencia** en la campaña (meteoros 1/2/4/8 XP según tamaño, aliens 6, boss 150 + 2 por nivel, nivel superado 20 + 2 por nivel). Nunca se pierde, aunque pierdas la bolsa. Tope: nivel 30 (unos 104.000 XP en total).
+- Cada nivel de nave suma **+4% de daño al Lanzallamas Zigzag** (necesita el Núcleo de Poder).
+- Las **pasivas** son gratis y se activan solas al llegar al nivel. Valen solo en la campaña (no en la Copa ni en el duelo):
+
+| Nivel | Pasiva | Qué hace |
+|---|---|---|
+| 3 | Esquivar | 8% de probabilidad de que un golpe no te toque; +0,5% por nivel hasta 15%. |
+| 6 | Destello | Si un enemigo queda encima de la nave, explota lo que hay a 4,6 de radio. Recarga 20 s. |
+| 10 | Parpadeo | En vez de recibir el golpe, la nave salta al lugar más seguro. Recarga 45 s. |
+| 14 | Imán | Las monedas a menos de 4,5 vienen solas. |
+| 18 | Segunda llama | El zigzag tira dos bolas cruzadas (necesita el Núcleo de Poder). |
+| 22 | Blindaje | +1 escudo máximo. |
+| 26 | Última chance | Una vez por recorrido, el golpe mortal te deja con el último escudo. |
+| 30 | Destello helado | El Destello congela 2 s a lo que no destruye. |
+
+- Orden al recibir un golpe: escudo de emergencia → Esquivar → boost SHIELD → Parpadeo → Última chance → pierde un escudo.
+- En el menú, la barra **NAVE** abre la pantalla con el nivel, la experiencia y las pasivas.
+- Código: `src/systems/ShipLevel.js` (números en `BB.SHIP`). Prueba: `python3 test/ship.py`.
 
 ## Ranking de campaña
 
@@ -66,7 +109,7 @@ python3 test/visual.py   # capturas en iPhone SE / Pro / Pro Max, tablet, PC y h
 - Modo aparte de la campaña, con **nave de copa propia**: todos arrancan igual y las mejoras de campaña no cuentan.
 - La nave de copa solo se mejora con **Monedas Lunares (ML)**, que se compran con dinero real: 1 USD = 300 ML (paquetes de USD 1, 3, 5, 10 y 20). Potencia arranca en 120 ML y Cadencia en 140 ML.
 - **Niveles de 6 segundos:** un contador va de 1 a 6 y arranca el nivel siguiente, más difícil, sin limpiar la pantalla. Cada 5 niveles aparece un BOSS: el contador se frena hasta vencerlo (da muchos puntos y +1 escudo).
-- **3 partidas por día** (se renuevan a las 00:00, hora de Argentina). **En el ranking queda la ÚLTIMA partida**, aunque sea menor: antes de volver a jugar el juego te avisa y podés plantarte. La partida se descuenta al empezar; si se cierra el juego a mitad, queda 0.
+- **3 partidas por día** (se renuevan a las 00:00, hora de Argentina). **En el ranking queda la ÚLTIMA partida**, aunque sea menor: antes de volver a jugar el juego te avisa y podés aterrizar. La partida se descuenta al empezar; si se cierra el juego a mitad, queda 0.
 - Todos juegan los mismos niveles (semilla semanal) y un modificador de la semana (Lluvia densa, Invasión, Gravedad alta o Rocas blindadas).
 - Ranking semanal compartido en la base de datos del artifact (`cup/<lunes>/scores/<usuario>`). Premios: 1.º USD 40, 2.º USD 25, 3.º USD 10. Cierra el domingo 23:59.
 - Configuración en `BB.CUP` (`src/managers/CupManager.js`). Con `live: false` los pagos son de prueba (no se cobra nada) y los premios figuran como no activos.
@@ -121,6 +164,11 @@ Estados: `LOADING, MENU, PLAYING, PAUSED, LEVEL_COMPLETE, BOSS_INTRO, BOSS_FIGHT
 - Cada sistema se actualiza dentro de su propio `try/catch`; una excepción no detiene el bucle.
 - Muestreo de píxeles tras el arranque: si la escena sale negra, baja la calidad y, si persiste, muestra un mensaje con REINTENTAR.
 - El fondo HTML nunca es negro puro y siempre hay una pantalla visible (carga, menú, juego o error).
+
+### Sensación de avance
+
+- El suelo de la plataforma corre hacia el jugador: la rejilla hexagonal (`BB.Tex.makeHexTile`, mosaico que se repite), las líneas de energía y las marcas junto a los muros se dibujan en el shader del suelo (`surfFS`) con el avance `surface.pos`.
+- La velocidad la decide `Game.update` según el estado (`world.scrollTarget`): 4,2 al jugar (+0,08 por nivel, hasta +3), 9 en la entrada del boss, 1,3 en el menú, 0 en pausa, game over y duelo. Además pasa polvo espacial por los costados.
 
 ### Rendimiento móvil
 

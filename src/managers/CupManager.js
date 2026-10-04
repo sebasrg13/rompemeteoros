@@ -222,7 +222,7 @@
         $('cup-modal-body').innerHTML = '<h3>¿JUGAR DE NUEVO?</h3><div class="price">' + U.fmt(last.score) + '</div>' +
           '<p>Ese es tu puntaje actual en el ranking. <b>Si jugás, se reemplaza por el de la nueva partida, aunque sea menor.</b></p><p class="test">Te quedan ' + this.triesLeft() + ' de ' + CUP.triesPerDay + ' partidas hoy.</p>';
         $('cup-confirm').textContent = 'JUGAR Y ARRIESGAR';
-        $('cup-cancel').textContent = 'ME PLANTO';
+        $('cup-cancel').textContent = 'ATERRIZAR';
         $('cup-modal').hidden = false;
         return;
       }
@@ -242,6 +242,7 @@
       g.score = 0; g.runCoins = 0;
       g.boosts.inventory = [];
       g.arsenal.resetRun();
+      g.premium.resetRun();
       g.save.data.stats.cupRuns = (g.save.data.stats.cupRuns || 0) + 1;
       if (g.state !== BB.STATES.MENU && g.state !== BB.STATES.GAME_OVER) g.toMenu();
       this.bossStage = false;
@@ -440,7 +441,7 @@
         '<li>La copa va de lunes 00:00 a domingo 23:59 (hora de Argentina, UTC−3).</li>' +
         '<li>Cada nivel dura ' + CUP.levelSec + ' segundos: al llegar a ' + CUP.levelSec + ' arranca el siguiente, más difícil. Sumás puntos por destruir enemigos, monedas y cada nivel superado.</li>' +
         '<li>Cada ' + CUP.bossEvery + ' niveles aparece un <b>BOSS</b>: el contador se frena hasta que lo destruyas. Vencerlo da muchos puntos y +1 escudo.</li>' +
-        '<li>Tenés ' + CUP.triesPerDay + ' partidas por día (se renuevan a las 00:00). <b>En el ranking queda el puntaje de tu ÚLTIMA partida</b>, aunque sea menor que el anterior. Pensá bien si volvés a jugar o te plantás.</li>' +
+        '<li>Tenés ' + CUP.triesPerDay + ' partidas por día (se renuevan a las 00:00). <b>En el ranking queda el puntaje de tu ÚLTIMA partida</b>, aunque sea menor que el anterior. Pensá bien si volvés a jugar o aterrizás con ese puntaje.</li>' +
         '<li>La partida se descuenta al empezar. Si salís a mitad, cuenta lo que hiciste hasta ahí; si se cierra el juego, queda en 0.</li>' +
         '<li>Todos juegan los mismos niveles y el mismo modificador semanal.</li>' +
         '<li>Premios: 1.º USD ' + CUP.prizes[0] + ', 2.º USD ' + CUP.prizes[1] + ', 3.º USD ' + CUP.prizes[2] + '. Solo cobran los tres primeros.</li>' +
@@ -457,7 +458,7 @@
         '<div class="row"><span>PUNTAJE</span><b>' + U.fmt(r.score) + '</b></div>' +
         '<div class="row"><span>NIVEL ALCANZADO</span><b>' + r.level + '</b></div>' +
         '<div class="row gold"><span>PARTIDAS QUE TE QUEDAN HOY</span><b>' + tl + '</b></div>';
-      $('cr-note').innerHTML = 'Este puntaje ya quedó en el ranking. ' + (tl > 0 ? 'Si volvés a jugar, <b>se reemplaza por el nuevo aunque sea menor</b>. ¿Te plantás o arriesgás?' : 'No te quedan partidas hoy: este es tu puntaje hasta mañana.');
+      $('cr-note').innerHTML = 'Este puntaje ya quedó en el ranking. ' + (tl > 0 ? 'Si volvés a jugar, <b>se reemplaza por el nuevo aunque sea menor</b>. ¿Aterrizás o seguís?' : 'No te quedan partidas hoy: este es tu puntaje hasta mañana.');
       const rb = $('cr-retry');
       rb.textContent = tl > 0 ? 'ARRIESGAR (' + tl + ' HOY)' : 'SIN PARTIDAS HOY';
       rb.classList.toggle('off', tl <= 0);

@@ -7,7 +7,7 @@
   BB.RISK = {
     STEP: 0.15, BOSS_STEP: 0.5, MAX: 5,   // multiplicador de la bolsa por nivel / boss superado
     CP_MULT: 0.8,                          // arrancar desde el último boss vencido: multiplicador reducido
-    CYCLE_MAX: 10,                         // cada reinicio (cobrar o perder) sube el ciclo
+    CYCLE_MAX: 10,                         // cada reinicio (aterrizar o perder) sube el ciclo
     CYCLE_METEORS: 0.25, CYCLE_COINS: 0.2, CYCLE_HP: 0.08,
   };
   const S = BB.STATES = {
@@ -82,6 +82,8 @@
         this.pvp.initUI();
         this.cup.initUI();
         this.arsenal.initUI();
+        this.premium.initUI();
+        this.ship.initUI();
         this.rank.initUI();
         this.net.init();
         this.cup.init();
@@ -102,7 +104,7 @@
       this.loopBound = (t) => this.frame(t);
       requestAnimationFrame(this.loopBound);
       ui.loading(1, 'LISTO');
-      ui.loadingReady(() => { this.audio.unlock(); this.audio.sfx('click'); this.setState(S.MENU); const rb = this.recoverPendingBag(); this.ui.showMenu(); if (rb > 0) this.ui.menuNotice('SE COBRÓ TU BOLSA PENDIENTE +' + U.fmt(rb), 'gold', 4200); this.audio.playMusic('menu'); });
+      ui.loadingReady(() => { this.audio.unlock(); this.audio.sfx('click'); this.setState(S.MENU); const rb = this.recoverPendingBag(); this.ui.showMenu(); if (rb > 0) this.ui.menuNotice('ATERRIZAJE AUTOMÁTICO: BOLSA A SALVO +' + U.fmt(rb), 'gold', 4200); this.audio.playMusic('menu'); });
       window.__BB_READY = true;
     }
 
@@ -128,12 +130,15 @@
       this.pvp = new BB.PvPManager(this);
       this.cup = new BB.CupManager(this);
       this.arsenal = new BB.Arsenal(this);
+      this.premium = new BB.PremiumManager(this);
+      this.ship = new BB.ShipLevel(this);
       this.rank = new BB.RankManager(this);
       this.onLoadoutChanged();
     }
 
     onLoadoutChanged() {
       this.stats = this.shop.computeStats();
+      if (this.ship) this.stats.maxShields += this.ship.extraShields();   // pasiva Blindaje (solo campaña)
       this.player.rebuild(this.stats.skin, this.stats.cannon);
       this.bullets.setPlayerType(this.stats.bullet);
     }
@@ -308,6 +313,21 @@
       w.danger = U.damp(w.danger, w.dangerTarget || 0, 2, dt);
       w.stars.warp = U.damp(w.stars.warp, this.warpTarget || 0, 1.5, dt);
       const st = this.state;
+      // sensación de avanzar: el suelo corre hacia el jugador (más rápido en niveles altos, se frena al pausar o perder)
+      const run = st === S.PLAYING || st === S.BOSS_FIGHT;
+      const lv = this.cupMode ? (this.cup.stage || 1) : (this.level.num || 1);
+      w.scrollTarget = run ? (this.levelEnding ? 2 : 4.2 + Math.min(3, lv * 0.08)) * (this.timeScale || 1)
+        : st === S.BOSS_INTRO ? 9 : st === S.PAUSED || st === S.GAME_OVER || st === S.PVP || st === S.PVP_RESULT ? 0 : st === S.SHOP ? 0.6 : 1.3;
+      if (run && !this.playerDead) {
+        // polvo espacial que pasa por los costados de la plataforma
+        this.dustT = (this.dustT || 0) - dt;
+        if (this.dustT <= 0) {
+          this.dustT = 0.09;
+          const A = BB.ARENA, sp = w.surface.speed;
+          const x = (Math.random() < 0.5 ? -1 : 1) * (A.halfW + U.rand(0.9, 7));
+          this.fx.emit(x, U.rand(A.top * 0.45, A.top + 10), U.rand(-1.5, 3.5), 0, -sp * U.rand(3, 4.5), 0, 1.3, 0.55, 0.55, [0.55, 0.8, 1], 0.3, 7, true, 0, 0);
+        }
+      }
       this.safe('pvp', () => this.pvp.tick(dt));
       if (this.isPlaying() || st === S.LEVEL_COMPLETE || st === S.GAME_OVER || st === S.PVP_RESULT) {
         if (this.slowmo > 0) { this.slowmo -= dt; this.timeScale = U.damp(this.timeScale, 0.3, 8, dt); } else this.timeScale = U.damp(this.timeScale, 1, 4, dt);
@@ -327,6 +347,8 @@
         this.safe('meteors', () => this.meteors.forEachAlive((m) => { if (m.frozenT > 0) { m.frozenT -= gdt; m.node.flash = 0.25 + 0.1 * Math.sin(m.t * 20); return; } this.applyWells(m, edt); m.update(edt); }));
         this.safe('aliens', () => this.aliens.forEachAlive((a) => { if (a.frozenT > 0) { a.frozenT -= gdt; return; } a.update(edt); }));
         if (playing) this.safe('arsenal', () => this.arsenal.update(gdt));
+        if (playing) this.safe('premium', () => this.premium.update(gdt));
+        if (playing) this.safe('ship', () => this.ship.update(gdt));
         this.safe('bullets', () => this.bullets.update(gdt));
         this.safe('squad', () => this.squad.update(gdt));
         this.safe('pickups', () => this.pickups.update(gdt));
@@ -364,6 +386,7 @@
       this.sprAdd.reset(cam); this.sprAlpha.reset(cam); this.sprOver.reset(cam);
       this.safe('fx-render', () => this.fx.render(this.sprAdd, this.sprAlpha, this.sprOver));
       this.safe('bullets-render', () => this.bullets.render(this.sprAdd));
+      this.safe('sticker', () => this.player.renderSticker(this.sprAlpha));
       this.safe('pickups-render', () => this.pickups.render(this.sprAdd, this.sprAlpha));
       if (this.state === S.PVP) this.safe('pvp-render', () => this.pvp.render(this.sprAdd));
       if (this.boss) this.safe('boss-render', () => this.boss.render(this.sprAdd, this.sprAlpha));
@@ -459,7 +482,7 @@
     }
     campStart() { const c = this.camp(); return c.startMode === 'cp' && c.checkpoint > 0 ? c.checkpoint + 1 : 1; }
     cycleK(kind) { const c = Math.min(BB.RISK.CYCLE_MAX, this.camp().cycle); return 1 + c * BB.RISK['CYCLE_' + kind]; }
-    // cobrar o perder = reinicio: vuelve a empezar y sube el ciclo (si superaste al menos un nivel)
+    // aterrizar o perder = reinicio: vuelve a empezar y sube el ciclo (si superaste al menos un nivel)
     endRun() {
       const c = this.camp();
       if (this.rank) this.rank.submitRun(this.score || 0, this.level.num || 1, c.cycle);
@@ -471,9 +494,11 @@
     startRun(L) {
       if (L === undefined) L = this.campStart();
       this.score = 0; this.runCoins = 0; this.runCleared = 0;
-      // bolsa en riesgo: todo lo que se gana en la campaña queda acá hasta COBRAR
+      // bolsa en riesgo: todo lo que se gana en la campaña queda acá hasta ATERRIZAR
       this.inCampaign = true; this.bag = 0; this.bagMult = L > 1 ? BB.RISK.CP_MULT : 1;
       this.arsenal.resetRun();
+      this.premium.resetRun();
+      this.ship.resetRun();
       this.save.data.runBag = null;
       this.boosts.inventory = [];
       this.save.data.stats.games++;
@@ -519,6 +544,11 @@
       this.ui.hideBanner();
       this.input.active = false;
       this.arsenal.renderHud();
+      // premium de campaña: escolta permanente y botón de escudo
+      this.squad.setEscort(this.premium.escort());
+      this.premium.renderHud();
+      this.ship.levelXp = 0; this.ship.ups = [];
+      this.ship.renderHud();
       if (cfg.boss) {
         this.setState(S.BOSS_INTRO);
         this.audio.playMusic('boss');
@@ -618,6 +648,7 @@
       this.save.data.stats.kills++;
       this.comboKill();
       this.addScore(t.score * this.combo.mult, t.x, t.y, t.z + 0.8);
+      this.ship.addXp(this.ship.xpForKill(t));
       const L = this.level.num;
       const coinK = (1 + L * 0.09) * (this.inCampaign ? this.cycleK('COINS') : 1) * this.arsenal.lootMult();
       if (!t.fromBoss || Math.random() < 0.5) this.pickups.spawnCoins(t.x, t.y, t.z, Math.max(1, Math.round(t.coins * coinK)));
@@ -643,6 +674,7 @@
       const g = this;
       this.after(1.2, () => this.arsenal.recharge());
       this.save.data.stats.bosses++;
+      this.ship.addXp(BB.SHIP.XP_BOSS + this.level.num * 2);
       this.addScore(10000, b.x, b.y, b.z + 2, 1.8);
       // limpieza: destruir enemigos restantes
       this.meteors.forEachAlive((m) => { m.noSplit = true; m.kill(); });
@@ -674,7 +706,7 @@
       this.save.save();
     }
     bagValue() { return Math.round((this.bag || 0) * (this.bagMult || 1)); }
-    // COBRAR Y RETIRARSE: la bolsa (con multiplicador) pasa a la billetera
+    // ATERRIZAR: la bolsa (con multiplicador) pasa a la billetera
     cashOut() {
       if (!this.inCampaign) { this.toMenu(); return; }
       const d = this.save.data, amount = this.bagValue();
@@ -699,7 +731,7 @@
       this.save.save(true);
       return lost;
     }
-    // si la app se cerró en la pantalla de nivel completado, la bolsa se cobra al volver
+    // si la app se cerró en la pantalla de nivel completado, la bolsa se guarda al volver
     recoverPendingBag() {
       const d = this.save.data, rb = d.runBag;
       d.runBag = null;
@@ -731,6 +763,12 @@
       if (this.playerDead || p.invuln > 0 || this.levelEnding || this.state === S.BOSS_INTRO) return;
       if (obj && obj.kind === 'meteor') { obj.vy = Math.sqrt(2 * obj.g * Math.max(2, obj.bounceH - obj.r)); obj.vx = (obj.x < p.x ? -1 : 1) * Math.max(2, Math.abs(obj.vx)); }
       if (obj && obj.kind === 'alien' && obj.state === 'dive') { obj.state = 'return'; obj.vy = 8; }
+      if (this.premShieldT > 0) {   // escudo de emergencia (premium): bloquea todo mientras dura
+        this.fx.sparks(p.x, p.y + 0.4, 0.9, [0.5, 0.85, 1], 6, 6);
+        if (!this._psT || performance.now() - this._psT > 200) { this._psT = performance.now(); this.audio.sfx('shieldBlock'); }
+        return;
+      }
+      if (this.ship.tryDodge()) return;   // pasiva Esquivar
       if (this.boosts.isActive('shield')) {
         this.boosts.consume('shield');
         p.invuln = 1.0;
@@ -740,6 +778,8 @@
         this.vibrate(30);
         return;
       }
+      if (this.ship.tryBlink()) return;                        // pasiva Parpadeo
+      if (this.shields <= 1 && this.ship.tryLast()) return;    // pasiva Última chance
       this.shields--;
       this.hitsTaken++;
       p.invuln = this.stats.invuln;
@@ -775,6 +815,7 @@
       if (this.combo.max >= 2) { const cb = this.combo.max * 400; scoreBonus += cb; bonuses.push(['COMBO MÁX x' + this.combo.max + ' (PUNTOS)', cb]); }
       this.score += scoreBonus;
       this.addCoins(lvlCoins);
+      this.ship.addXp(BB.SHIP.XP_LEVEL + L * 2);
       const prevMult = this.bagMult || 1;
       if (this.inCampaign) {
         this.bagMult = Math.min(BB.RISK.MAX, Math.round((prevMult + (boss ? BB.RISK.BOSS_STEP : BB.RISK.STEP)) * 100) / 100);
@@ -796,6 +837,7 @@
         score: this.score, coins: this.levelCoins, bonusTotal: scoreBonus, bonuses, rewards: keys,
         bag: this.bag || 0, mult: this.bagMult || 1, prevMult, cash: this.bagValue(),
         nextMult: Math.min(BB.RISK.MAX, (this.bagMult || 1) + BB.RISK.STEP),
+        ship: this.inCampaign ? { lvl: this.ship.lvl, xp: this.ship.levelXp, frac: this.ship.frac(), ups: this.ship.ups.slice() } : null,
       });
     }
 
@@ -824,6 +866,7 @@
       const newRecord = this.score > d.best;
       if (newRecord) d.best = this.score;
       const lostMult = this.bagMult || 1;
+      const shipRun = this.inCampaign && !this.cupMode ? { lvl: this.ship.lvl, xp: this.ship.runXp, frac: this.ship.frac() } : null;
       const lost = this.loseBag();
       const cupRun = this.cupMode ? this.cup.end('ko') : null;
       this.save.save(true);
@@ -843,7 +886,7 @@
         this.audio.sfx('gameover');
         this.world.dangerTarget = 0;
         this.ui.hideBanner();
-        this.ui.showOver({ score: this.score, level: this.level.num, coins: this.runCoins || 0, best: d.best, newRecord, lost, lostMult, wallet: d.coins, cycle: this.camp().cycle, cycleUp: this.cycleUp, start: this.campStart() });
+        this.ui.showOver({ score: this.score, level: this.level.num, coins: this.runCoins || 0, best: d.best, newRecord, lost, lostMult, wallet: d.coins, cycle: this.camp().cycle, cycleUp: this.cycleUp, start: this.campStart(), ship: shipRun });
       });
     }
 
@@ -890,6 +933,8 @@
     startPvpArena() {
       this.inCampaign = false; this.cupMode = false;
       if (this.arsenal) this.arsenal.renderHud();
+      if (this.premium) this.premium.resetRun();
+      if (this.ship) this.ship.resetRun();
       this.clearEntities();
       this.onLoadoutChanged();
       this.timers.length = 0;

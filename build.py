@@ -13,7 +13,7 @@ ORDER = [
     'systems/CollisionSystem.js',
     'managers/LevelManager.js', 'managers/AudioManager.js', 'managers/StorageManager.js', 'managers/ShopManager.js',
     'managers/PerformanceManager.js', 'managers/UIManager.js',
-    'net/NetManager.js', 'managers/PvPManager.js', 'managers/CupManager.js', 'managers/RankManager.js', 'systems/Arsenal.js',     'game/Game.js',
+    'net/NetManager.js', 'managers/PvPManager.js', 'managers/CupManager.js', 'managers/RankManager.js', 'systems/Arsenal.js', 'managers/PremiumManager.js', 'systems/ShipLevel.js',     'game/Game.js',
     'main.js',
 ]
 

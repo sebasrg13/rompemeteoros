@@ -92,3 +92,19 @@ Los jugadores ven **"Nueva versión de la app → DESCARGAR"** y la instalan enc
 | Copa Semanal (jugar) | ✅ |
 | Duelo online, rankings y ranking de la Copa | ⏳ necesitan un servidor propio (por ejemplo Firebase); hoy funcionan dentro de Claude. Es el próximo paso |
 | Compra de Monedas Lunares con dinero real | ⏳ necesita Google Play Billing o Mercado Pago más el servidor |
+
+---
+
+## iPhone / iPad
+
+En iPhone no se pueden instalar APK. Por eso el juego se instala como **app web** desde Safari. No hace falta cuenta de Apple ni pagar nada.
+
+1. Abrí **https://TU-USUARIO.github.io/rompemeteoros/** en **Safari**. La página detecta el iPhone y muestra el botón **ABRIR EN IPHONE**.
+2. Tocá **ABRIR EN IPHONE**.
+3. Tocá **Compartir** y después **"Agregar a pantalla de inicio"**.
+
+Queda un ícono de app, se abre en pantalla completa y funciona sin internet. **Se actualiza sola**: cada vez que la abrís con conexión, ya tenés la última versión que publicaste. No aparece ningún aviso.
+
+Diferencias con Android: en iPhone la vibración no funciona, porque Safari no lo permite.
+
+Para tener una app en la **App Store** hace falta la cuenta de desarrollador de Apple (USD 99 por año), compilar en una Mac (o un servicio en la nube) y pasar la revisión de Apple. Se puede armar más adelante sobre esta misma base.

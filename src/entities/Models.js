@@ -126,6 +126,40 @@
     phantom: { hull: [0.22, 0.2, 0.3], dark: [0.07, 0.06, 0.1], accent: [0.8, 0.35, 1.0], name: 'Phantom' },
     crimson: { hull: [0.85, 0.15, 0.25], dark: [0.25, 0.05, 0.08], accent: [1.0, 0.85, 0.3], name: 'Royal Crimson' },
   };
+  // ---- SKINS DE PAGO (Monedas Lunares) ----
+  // Países: el ala izquierda, la cúpula y el ala derecha llevan los tres colores; "dark" es la base y "accent" las luces.
+  (function () {
+    const W = [0.95, 0.95, 0.97], K = [0.09, 0.09, 0.1], GOLD = [1, 0.8, 0.25], SUN = [1, 0.85, 0.2];
+    const CEL = [0.45, 0.72, 0.95], BLU = [0.1, 0.3, 0.78], NAVY = [0.05, 0.14, 0.45], SKY = [0.15, 0.55, 0.9];
+    const RED = [0.85, 0.12, 0.16], GRN = [0.08, 0.6, 0.25], YEL = [1, 0.82, 0.1];
+    const dRED = [0.3, 0.04, 0.06], dBLU = [0.05, 0.1, 0.32], dGRN = [0.04, 0.22, 0.1], dCEL = [0.12, 0.25, 0.42], GREY = [0.45, 0.47, 0.55];
+    // código: [nombre, izquierda, cúpula, derecha, base, luces]
+    const C = {
+      AR: ['Argentina', CEL, W, CEL, dCEL, SUN], UY: ['Uruguay', BLU, W, BLU, dBLU, SUN], CL: ['Chile', NAVY, W, RED, dRED, [0.9, 0.95, 1]],
+      PY: ['Paraguay', RED, W, BLU, dBLU, GOLD], BO: ['Bolivia', RED, YEL, GRN, dGRN, YEL], PE: ['Perú', RED, W, RED, dRED, GOLD],
+      EC: ['Ecuador', YEL, BLU, RED, dBLU, GOLD], CO: ['Colombia', BLU, YEL, RED, dBLU, YEL], VE: ['Venezuela', YEL, BLU, RED, dRED, [0.9, 0.95, 1]],
+      BR: ['Brasil', GRN, YEL, GRN, NAVY, [1, 0.9, 0.2]], MX: ['México', GRN, W, RED, dRED, [0.9, 0.65, 0.25]],
+      GT: ['Guatemala', CEL, W, CEL, dCEL, [0.4, 0.9, 0.5]], SV: ['El Salvador', BLU, W, BLU, dBLU, [0.3, 0.85, 0.5]],
+      HN: ['Honduras', SKY, W, SKY, dBLU, [0.3, 0.8, 1]], NI: ['Nicaragua', BLU, W, BLU, dCEL, [0.9, 0.9, 0.4]],
+      CR: ['Costa Rica', BLU, RED, BLU, dBLU, [0.9, 0.95, 1]], PA: ['Panamá', BLU, W, RED, dBLU, [1, 0.3, 0.3]],
+      CU: ['Cuba', RED, W, BLU, dBLU, [0.3, 0.5, 1]], DO: ['República Dominicana', BLU, W, RED, GREY, [0.3, 0.5, 1]],
+      PR: ['Puerto Rico', RED, SKY, RED, dRED, [0.9, 0.95, 1]], US: ['Estados Unidos', RED, NAVY, RED, GREY, [0.9, 0.95, 1]],
+      CA: ['Canadá', RED, W, RED, GREY, [1, 0.25, 0.2]], ES: ['España', RED, YEL, RED, dRED, YEL], PT: ['Portugal', GRN, RED, RED, dGRN, YEL],
+      IT: ['Italia', GRN, W, RED, dGRN, [0.5, 1, 0.6]], FR: ['Francia', BLU, W, RED, NAVY, [0.4, 0.6, 1]],
+      DE: ['Alemania', K, RED, YEL, [0.05, 0.05, 0.06], GOLD], GB: ['Reino Unido', NAVY, RED, NAVY, dBLU, [0.9, 0.95, 1]],
+    };
+    M.COUNTRY_SKINS = [];
+    for (const cc of Object.keys(C)) {
+      const c = C[cc], id = 'c_' + cc.toLowerCase();
+      M.SKINS[id] = { name: c[0], left: c[1], hull: c[2], right: c[3], dark: c[4], accent: c[5], cc };
+      M.COUNTRY_SKINS.push(id);
+    }
+    // Especiales
+    M.SKINS.x_lunar = { name: 'Oro Lunar', hull: [1, 0.86, 0.45], left: W, right: W, dark: [0.3, 0.22, 0.06], accent: [0.75, 0.6, 1], special: true };
+    M.SKINS.x_neon = { name: 'Neón', hull: [0.1, 0.1, 0.14], left: [1, 0.15, 0.7], right: [0.1, 0.9, 1], dark: [0.04, 0.04, 0.07], accent: [0.6, 1, 0.2], special: true };
+    M.SKINS.x_galaxy = { name: 'Galaxia', hull: [0.45, 0.25, 0.9], left: [0.15, 0.3, 0.9], right: [0.9, 0.3, 0.7], dark: [0.1, 0.05, 0.25], accent: [1, 0.6, 0.9], special: true };
+    M.SPECIAL_SKINS = ['x_lunar', 'x_neon', 'x_galaxy'];
+  })();
 
   M.playerParts = function (skinId, cannonId) {
     const sk = M.SKINS[skinId] || M.SKINS.cobalt;
@@ -136,7 +170,7 @@
     base.add(P.cyl(0.62, 0.78, 0.12, 22), { rx: HALF, z: 0.5, color: metal });
     base.add(P.torus(0.9, 0.055, 6, 28), { z: 0.3, color: sk.accent, glow: 1 });
     for (const s of [-1, 1]) {
-      base.add(P.box(0.32, 0.9, 0.34, 0.8, 0.8), { x: s * 0.98, y: -0.05, z: 0.36, color: sk.hull });
+      base.add(P.box(0.32, 0.9, 0.34, 0.8, 0.8), { x: s * 0.98, y: -0.05, z: 0.36, color: (s < 0 ? sk.left : sk.right) || sk.hull });
       base.add(P.box(0.08, 0.7, 0.08), { x: s * 1.16, y: 0, z: 0.42, color: sk.accent, glow: 1 });
       base.add(P.cyl(0.13, 0.1, 0.18, 10), { x: s * 0.98, y: -0.58, z: 0.36, color: sk.accent, glow: 1 });
     }

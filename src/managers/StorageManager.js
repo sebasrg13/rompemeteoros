@@ -58,7 +58,13 @@
       if (now) write(); else this._t = setTimeout(write, 250);
     }
     reset() {
+      // lo comprado con Monedas Lunares no se borra al reiniciar el progreso
+      const keep = { cup: this.data.cup, premium: this.data.premium };
+      const paid = Object.keys((this.data.shop && this.data.shop.owned) || {}).filter((k) => k.indexOf('skinp_') === 0);
       this.data = defaults();
+      for (const k of paid) this.data.shop.owned[k] = 1;
+      if (keep.cup) this.data.cup = keep.cup;
+      if (keep.premium) this.data.premium = keep.premium;
       this.save(true);
     }
   }

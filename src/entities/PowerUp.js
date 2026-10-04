@@ -68,7 +68,7 @@
         const a = this.active[k];
         if (a.t > 0) {
           a.t -= dt;
-          if (a.t <= 0) { a.t = 0; this.changed = true; if (k === 'multi') this.tier = 0; if (k === 'squad') this.game.squad.stop(); }
+          if (a.t <= 0) { a.t = 0; this.changed = true; if (k === 'multi') this.tier = 0; if (k === 'squad') this.game.squad.endBoost(); }
         }
       }
     }
@@ -127,6 +127,7 @@
     update(dt) {
       const g = this.game, p = g.player, A = BB.ARENA;
       const magnet = g.boosts.isActive('magnet') || this.vacuum;
+      const mr = g.ship ? g.ship.magnetR() : 0;   // pasiva Imán de la nave
       for (const c of this.caps) {
         if (!c.alive) continue;
         c.t += dt;
@@ -150,6 +151,7 @@
         if (!c.alive) continue;
         c.t += dt; c.spin += dt * 7;
         const dx = p.x - c.x, dy = p.y - c.y, dist = Math.hypot(dx, dy);
+        if (mr > 0 && !c.home && c.t > 0.35 && dist < mr) c.home = true;
         if ((magnet && c.t > 0.35) || c.home) {
           const sp = 16 + c.t * 4;
           c.x += (dx / (dist || 1)) * sp * dt; c.y += (dy / (dist || 1)) * sp * dt;

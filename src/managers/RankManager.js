@@ -100,7 +100,7 @@
         if (db && this.pendingSubmit) { const s = this.pendingSubmit; this.pendingSubmit = null; this.write(s); }
       } catch (e) { BB.reportError('rank-init', e); this.online = 'offline'; }
     }
-    // al terminar un recorrido (cobrar o perder): se sube si es tu mejor puntaje
+    // al terminar un recorrido (aterrizar o perder): se sube si es tu mejor puntaje
     submitRun(score, level, cycle) {
       const st = this.game.save.data.stats;
       if (!(score > (st.bestRun || 0))) return false;
@@ -211,7 +211,7 @@
       let h = '';
       if (this.online !== 'online') h = '<p class="empty">Ranking online no disponible en esta vista. Tu mejor recorrido se guarda en este dispositivo.</p>';
       else if (!this.hasLoc() && this.scope !== 'g') h = '<p class="empty">Elegí tu ubicación para ver este ranking.</p>';
-      else if (!this.rows.length) h = '<p class="empty">Todavía no hay puntajes acá. Terminá un recorrido (cobrando o perdiendo) para entrar.</p>';
+      else if (!this.rows.length) h = '<p class="empty">Todavía no hay puntajes acá. Terminá un recorrido (aterrizando o perdiendo) para entrar.</p>';
       else h = '<div class="rank">' + this.rows.map((r, i) => '<div class="rr rr5' + (r.id === this.uid ? ' me' : '') + (i < 3 ? ' top' : '') + '"><i>' + (i + 1) + '</i><span>' + this.esc(this.nameOf(r.id)) + '<small>' + flag(r.country) + ' ' + this.esc(r.city || '') + '</small></span><em>NV ' + (r.level || 1) + ' · C' + (r.cycle || 0) + '</em><b>' + U.fmt(r.score) + '</b></div>').join('') + '</div>';
       $('rank-list').innerHTML = h;
     }

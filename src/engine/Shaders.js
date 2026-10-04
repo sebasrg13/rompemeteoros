@@ -143,17 +143,27 @@ void main(){
   S.surfVS = `
 attribute vec3 aPos; attribute vec2 aUV;
 uniform mat4 uModel; uniform mat4 uViewProj;
-varying vec2 vUV; varying vec3 vW;
-void main(){ vUV = aUV; vec4 w = uModel * vec4(aPos, 1.0); vW = w.xyz; gl_Position = uViewProj * w; }`;
+varying vec2 vUV; varying vec3 vW; varying vec2 vP;
+void main(){ vUV = aUV; vP = aPos.xy; vec4 w = uModel * vec4(aPos, 1.0); vW = w.xyz; gl_Position = uViewProj * w; }`;
   S.surfFS = `
 uniform sampler2D uTex; uniform vec3 uTint; uniform vec3 uCamPos; uniform vec3 uFogColor; uniform vec2 uFog; uniform float uTime; uniform float uScroll;
 uniform vec4 uPL[4]; uniform vec3 uPLC[4];
-varying vec2 vUV; varying vec3 vW;
+uniform sampler2D uTex2; uniform vec4 uMove;   // uMove: avance, mitad del ancho, 1/periodoX, 1/periodoY
+varying vec2 vUV; varying vec3 vW; varying vec2 vP;
 void main(){
   vec4 t = texture2D(uTex, vec2(vUV.x, vUV.y));
   vec3 c = t.rgb * uTint;
-  float line = smoothstep(0.985, 1.0, sin((vUV.y * 26.0 - uTime * uScroll) * 3.14159) * 0.5 + 0.5);
-  c += vec3(0.1, 0.5, 0.9) * line * 0.25 * t.a;
+  // el suelo "corre" hacia el jugador: rejilla hexagonal, líneas de energía y marcas junto a los muros
+  float py = vP.y + uMove.x;
+  float ax = abs(vP.x);
+  float inside = step(ax, uMove.y);
+  float fade = clamp(vUV.y * 4.0, 0.0, 1.0);
+  float hx = texture2D(uTex2, vec2(vP.x * uMove.z, py * uMove.w)).a;
+  c = mix(c, vec3(0.42, 0.68, 1.0) * uTint, hx * 0.17 * fade * inside);
+  float line = smoothstep(0.985, 1.0, sin(py * 1.745329) * 0.5 + 0.5);
+  c += vec3(0.1, 0.5, 0.9) * line * 0.28 * t.a * inside;
+  float tick = smoothstep(0.72, 0.78, fract(py * 0.5555556)) * smoothstep(uMove.y - 0.85, uMove.y - 0.25, ax) * inside;
+  c += vec3(0.25, 0.9, 1.0) * tick * 0.5 * fade;
   for (int i = 0; i < 4; i++) {
     float d = length(uPL[i].xyz - vW);
     float att = clamp(1.0 - d / max(uPL[i].w, 0.001), 0.0, 1.0);

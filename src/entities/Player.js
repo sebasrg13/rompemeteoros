@@ -29,8 +29,17 @@
       const parts = BB.Models.playerParts(skinId, cannonId);
       this.base.geo = parts.base; this.turret.geo = parts.turret; this.barrel.geo = parts.barrel; this.core.geo = parts.core;
       this.core.tint = parts.skin.accent;
+      this.core.visible = !parts.skin.cc;   // en las skins de países, la bandera ocupa el lugar del núcleo
       this.accent = parts.skin.accent;
       this.skin = skinId; this.cannon = cannonId;
+    }
+
+    // Sticker de la bandera (skins de países): calcomanía curva pegada arriba de la cúpula
+    renderSticker(batch) {
+      const sk = BB.Models.SKINS[this.skin];
+      const uv = sk && sk.cc ? BB.Tex.flagUV[sk.cc] : null;
+      if (!uv || !this.node.visible || !this.turret.visible) return;
+      BB.drawSticker(batch, this.node, this.turret, uv);
     }
 
     reset() {
@@ -67,7 +76,7 @@
       } else {
         this.base.visible = this.turret.visible = this.barrel.visible = true;
       }
-      const shieldOn = g.boosts && g.boosts.isActive('shield');
+      const shieldOn = (g.boosts && g.boosts.isActive('shield')) || g.premShieldT > 0;
       this.bubble.visible = !!shieldOn;
       if (shieldOn) { this.bubble.ry += dt; this.bubble.opacity = 0.8 + Math.sin(this.t * 8) * 0.2; }
 
@@ -87,6 +96,19 @@
           this.fireT += 1 / (st.rate * rapid);
           if (this.fireT < -0.1) this.fireT = 0;
           this.fire();
+        }
+        // Núcleo de Poder (premium de campaña): lanzallamas zigzag automático
+        if (g.premium && g.premium.zigOn()) {
+          this.zigT = (this.zigT || 0) - dt;
+          if (this.zigT <= 0) {
+            this.zigT = 0.6;
+            this.zigDir = -(this.zigDir || 1);
+            const st = g.stats;
+            // el daño del zigzag sube con el nivel de la nave; con la pasiva Segunda llama salen dos cruzadas
+            const zd = st.dmg * 2.6 * (g.boosts.isActive('damage') ? 1.7 : 1) * g.ship.zigMult();
+            g.bullets.fireZigzag(this.x, this.y + 1.2, 0.8, zd, this.zigDir);
+            if (g.ship.has('twin')) g.bullets.fireZigzag(this.x, this.y + 1.2, 0.8, zd, -this.zigDir);
+          }
         }
       }
     }
@@ -131,6 +153,42 @@
     return out;
   };
   BB.volleyFactor = (N) => ({ 1: 1, 2: 1.5, 3: 1.9, 5: 2.4, 7: 2.8 }[N] || 1);
+  // Calcomanía sobre la cúpula (elipsoide de radio 0,56 x 0,56 x 0,403 centrado en z = 0,62).
+  // Es un rectángulo visto desde ARRIBA, proyectado sobre la cúpula: de arriba se ve la bandera sin deformar
+  // (con la parte superior hacia el frente de la nave) y de costado se ve pegada a la curva.
+  const STK = (function () {
+    const NT = 8, NP = 6, K = 1.045, RX = 0.56, RZ = 0.403, CZ = 0.62;
+    const SW = 0.76, SH = SW / 1.45, UP0 = -0.06;         // ancho, alto y corrimiento hacia atrás (deja libres los faros)
+    const D = [0, 0, 1];                                   // se proyecta desde arriba
+    const UPV = [0, 1, 0];                                 // la parte de arriba de la bandera apunta al frente
+    const L = new Float32Array((NT + 1) * (NP + 1) * 3);
+    for (let j = 0; j <= NP; j++) for (let i = 0; i <= NT; i++) {
+      const sx = -SW / 2 + (SW * i) / NT, su = UP0 - SH / 2 + (SH * j) / NP, o = (j * (NT + 1) + i) * 3;
+      // punto del plano, llevado lejos hacia la cámara; rayo hacia la nave y choque con el elipsoide
+      const ox = sx + D[0] * 5, oy = UPV[1] * su + D[1] * 5, oz = UPV[2] * su + D[2] * 5;
+      const ax = ox / RX, ay = oy / RX, az = oz / RZ, bx = -D[0] / RX, by = -D[1] / RX, bz = -D[2] / RZ;
+      const A = bx * bx + by * by + bz * bz, B = 2 * (ax * bx + ay * by + az * bz), C = ax * ax + ay * ay + az * az - K * K;
+      const disc = Math.max(0, B * B - 4 * A * C), t = (-B - Math.sqrt(disc)) / (2 * A);
+      L[o] = ox - D[0] * t; L[o + 1] = oy - D[1] * t; L[o + 2] = CZ + oz - D[2] * t;
+    }
+    return { NT, NP, L, W: new Float32Array(L.length) };
+  })();
+  BB.drawSticker = function (batch, root, node, uv) {
+    root.updateWorld(root.parent ? root.parent.world : null);   // matriz al día (el render la recalcula después)
+    const m = node.world, L = STK.L, W = STK.W, NT = STK.NT, NP = STK.NP;
+    for (let o = 0; o < L.length; o += 3) {
+      const x = L[o], y = L[o + 1], z = L[o + 2];
+      W[o] = m[0] * x + m[4] * y + m[8] * z + m[12];
+      W[o + 1] = m[1] * x + m[5] * y + m[9] * z + m[13];
+      W[o + 2] = m[2] * x + m[6] * y + m[10] * z + m[14];
+    }
+    const du = (uv[2] - uv[0]) / NT, dv = (uv[3] - uv[1]) / NP, row = (NT + 1) * 3;
+    for (let j = 0; j < NP; j++) for (let i = 0; i < NT; i++) {
+      const a = j * row + i * 3;
+      // j crece hacia arriba: la fila de arriba de la imagen (v chico) va en el borde superior
+      batch.quad4(W, a, a + 3, a + row + 3, a + row, uv[0] + du * i, uv[3] - dv * (j + 1), uv[0] + du * (i + 1), uv[3] - dv * j, 1, 1, 1, 1);
+    }
+  };
   BB.Player = Player;
   BB.MULTI_LEVELS = MULTI;
 })(window.BB);

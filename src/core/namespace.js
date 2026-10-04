@@ -1,4 +1,4 @@
-/* Rompemeteoros — Cobrá o arriesgá
+/* Rompemeteoros — ¿Seguís o aterrizás?
  * core/namespace.js — espacio de nombres global, utilidades y reporte de errores.
  */
 (function () {

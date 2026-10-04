@@ -8,9 +8,12 @@
     { id: 'shields', name: 'ESCUDOS' },
     { id: 'minis', name: 'MINI NAVES' },
     { id: 'skins', name: 'SKINS' },
+    { id: 'premium', name: '★ PREMIUM' },
   ];
 
   const upCost = (base, k) => (lvl) => Math.round(base * Math.pow(k, lvl) / 10) * 10;
+  // costo más allá del tope normal: crece 8% por nivel sobre el último precio (no exponencial)
+  const extCost = (fn, cap) => (lvl) => lvl < cap ? fn(lvl) : Math.round(fn(cap - 1) * (1 + 0.08 * (lvl - cap + 1)) / 10) * 10;
 
   const ITEMS = [
     // CAÑONES — modelos equipables
@@ -19,8 +22,9 @@
     { id: 'cannon_titan', cat: 'cannons', kind: 'equip', slot: 'cannon', val: 'titan', name: 'Titan', desc: 'Cañón pesado: +55% daño, −10% cadencia.', price: 1800, stats: { rate: 0.9, dmg: 1.55 } },
     { id: 'cannon_nova', cat: 'cannons', kind: 'equip', slot: 'cannon', val: 'nova', name: 'Nova Prime', desc: 'Triple núcleo: +30% daño y +30% cadencia.', price: 4500, stats: { rate: 1.3, dmg: 1.3 } },
     // CAÑONES — mejoras
-    { id: 'up_power', cat: 'cannons', kind: 'upgrade', key: 'power', name: 'Potencia', desc: '+18% de daño por nivel.', max: 15, cost: upCost(80, 1.42) },
-    { id: 'up_rate', cat: 'cannons', kind: 'upgrade', key: 'rate', name: 'Cadencia', desc: '+8% de disparos por segundo por nivel.', max: 10, cost: upCost(100, 1.5) },
+    // con el Núcleo de Poder (premium) el tope sube a 50: los niveles extra rinden menos y cuestan monedas del juego
+    { id: 'up_power', cat: 'cannons', kind: 'upgrade', key: 'power', name: 'Potencia', desc: '+18% de daño por nivel (+8% desde el 16).', max: 15, core: true, cost: extCost(upCost(80, 1.42), 15) },
+    { id: 'up_rate', cat: 'cannons', kind: 'upgrade', key: 'rate', name: 'Cadencia', desc: '+8% de disparos por segundo por nivel (+1% desde el 11).', max: 10, core: true, cost: extCost(upCost(100, 1.5), 10) },
     // PROYECTILES
     { id: 'bullet_plasma', cat: 'bullets', kind: 'equip', slot: 'bullet', val: 'plasma', name: 'Plasma', desc: 'Proyectil de energía cian.', price: 0 },
     { id: 'bullet_laser', cat: 'bullets', kind: 'equip', slot: 'bullet', val: 'laser', name: 'Láser', desc: '+30% velocidad y +10% daño.', price: 900 },
@@ -41,10 +45,17 @@
     { id: 'skin_phantom', cat: 'skins', kind: 'equip', slot: 'skin', val: 'phantom', name: 'Phantom', desc: 'Negro mate con energía violeta.', price: 1500 },
     { id: 'skin_crimson', cat: 'skins', kind: 'equip', slot: 'skin', val: 'crimson', name: 'Royal Crimson', desc: 'Carmesí real con detalles dorados.', price: 2500 },
   ];
+  // SKINS DE PAGO (Monedas Lunares): una por país del ranking + especiales. Solo cambian el aspecto.
+  const SKIN_ML = BB.SKIN_ML = { country: 300, special: 500 };
+  for (const v of BB.Models.COUNTRY_SKINS) { const s = BB.Models.SKINS[v]; ITEMS.push({ id: 'skinp_' + v, cat: 'skins', kind: 'equip', slot: 'skin', val: v, name: s.name, desc: 'Colores y bandera de ' + s.name + '.', price: 0, ml: SKIN_ML.country, cc: s.cc, group: 'country' }); }
+  const SPECIAL_DESC = { x_lunar: 'Oro y blanco con luces violeta.', x_neon: 'Negro con alas rosa y cian.', x_galaxy: 'Violeta profundo con destellos rosados.' };
+  for (const v of BB.Models.SPECIAL_SKINS) { const s = BB.Models.SKINS[v]; ITEMS.push({ id: 'skinp_' + v, cat: 'skins', kind: 'equip', slot: 'skin', val: v, name: s.name, desc: SPECIAL_DESC[v], price: 0, ml: SKIN_ML.special, group: 'special' }); }
 
   class ShopManager {
     constructor(game) { this.game = game; this.cats = CATS; this.items = ITEMS; }
     // la campaña se mejora SOLO con monedas del juego (las Monedas Lunares son exclusivas de la copa)
+    // tope de una mejora: 50 si tiene el Núcleo de Poder
+    maxOf(item) { return item.core && this.game.premium && this.game.premium.hasCore() ? BB.PREMIUM.CORE_MAX : item.max; }
     canPay(coins) { return this.data.coins >= coins; }
     pay(coins) { this.data.coins -= coins; }
     get data() { return this.game.save.data; }
@@ -56,12 +67,14 @@
       if (item.kind === 'equip') {
         const owned = !!d.shop.owned[item.id];
         const equipped = d.shop.equipped[item.slot] === item.val;
+        if (item.ml) return { owned, equipped, price: item.ml, ml: true, affordable: this.game.premium.ml >= item.ml };
         return { owned, equipped, price: item.price, affordable: this.canPay(item.price) };
       }
       const lvl = d.shop.up[item.key] || 0;
-      const maxed = lvl >= item.max;
+      const max = this.maxOf(item);
+      const maxed = lvl >= max;
       const price = maxed ? 0 : item.cost(lvl);
-      return { level: lvl, max: item.max, maxed, price, affordable: maxed ? false : this.canPay(price) };
+      return { level: lvl, max, maxed, price, affordable: maxed ? false : this.canPay(price) };
     }
 
     buy(id) {
@@ -71,7 +84,7 @@
       if (item.kind === 'equip') {
         if (st.owned) { d.shop.equipped[item.slot] = item.val; this.game.onLoadoutChanged(); this.game.save.save(); return 'equip'; }
         if (!st.affordable) return false;
-        this.pay(item.price);
+        if (item.ml) this.game.premium.ml -= item.ml; else this.pay(item.price);
         d.shop.owned[item.id] = 1;
         d.shop.equipped[item.slot] = item.val;
       } else {
@@ -80,7 +93,7 @@
         d.shop.up[item.key] = (d.shop.up[item.key] || 0) + 1;
       }
       this.game.onLoadoutChanged();
-      this.game.save.save();
+      this.game.save.save(true);
       return 'buy';
     }
 
@@ -90,8 +103,8 @@
       const cannon = ITEMS.find((i) => i.slot === 'cannon' && i.val === d.shop.equipped.cannon) || ITEMS[0];
       const cs = cannon.stats || { rate: 1, dmg: 1 };
       return {
-        dmg: 1 * cs.dmg * (1 + 0.18 * (up.power || 0)),
-        rate: 8.5 * cs.rate * (1 + 0.08 * (up.rate || 0)),
+        dmg: 1 * cs.dmg * (1 + 0.18 * Math.min(15, up.power || 0) + 0.08 * Math.max(0, (up.power || 0) - 15)),
+        rate: 8.5 * cs.rate * (1 + 0.08 * Math.min(10, up.rate || 0) + 0.01 * Math.max(0, (up.rate || 0) - 10)),
         maxShields: 3 + (up.shield || 0),
         invuln: 1.6 + 0.4 * (up.invuln || 0),
         shieldBonus: 3 * (up.bubble || 0),
